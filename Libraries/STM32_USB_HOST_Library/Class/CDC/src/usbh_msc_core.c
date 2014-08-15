@@ -160,7 +160,11 @@ void USBH_MSC_ErrorHandle(uint8_t status);
   * @{
   */ 
 
+//55534243123456780000000000000011062000000100000000000000000000";
+//55534243123456780000000000000011062000000100000000000000000000
 char		strMsg[] = "55534243123456780000000000000011062000000100000000000000000000";
+//55534243000000000000000000000011060000000100000000000000000000";
+
 uint8_t		buffMsg[100]	;
 
 uint8_t		hex2nbl(char chHex)
@@ -177,7 +181,9 @@ int	hexstr2bin(uint8_t* buf,char* strMsg)
    if(!strMsg[ix] || !strMsg[ix+1]) break	;
    buf[ix>>1] = (hex2nbl(strMsg[ix])<<4) | hex2nbl(strMsg[ix+1])			;
  }
- return	(ix>>1)		;}
+ 
+ if(ix) ix = (ix>>1)+1	;
+ return	ix				;}
 
 
 
@@ -250,8 +256,9 @@ static USBH_Status USBH_MSC_InterfaceInit ( USB_OTG_CORE_HANDLE *pdev,
   
   
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//  Length = hexstr2bin(buffMsg,strMsg)	;
-//  Status = USBH_BulkReceiveData(pdev,buffMsg,Length,MSC_Machine.hc_num_out);
+  Length = hexstr2bin(buffMsg,strMsg)	;
+  Status = USBH_BulkSendData(pdev,buffMsg,Length,MSC_Machine.hc_num_out);
+//  Status = USBH_BulkSendData(pdev,strMsg,64,MSC_Machine.hc_num_out);
   //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
   return USBH_OK ;

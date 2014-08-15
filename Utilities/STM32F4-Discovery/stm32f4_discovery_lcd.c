@@ -756,7 +756,7 @@ void LCD_DisplayStringLine(uint16_t Line, uint8_t *ptr)
 {
   uint16_t refcolumn = 0;
 
-  printf(ptr)	;
+  printf((const char*)ptr)	; printf("\n")	;
 
   /* Send the string character by character on lCD */
   while (*ptr != 0)
