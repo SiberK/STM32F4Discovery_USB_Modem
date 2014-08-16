@@ -103,7 +103,6 @@ FATFS fatfs;
 FIL file;
 uint8_t Image_Buf[IMAGE_BUFFER_SIZE];
 uint8_t line_idx = 0;   
-static int flgPID = 0	;
 
 /*  Points to the DEVICE_PROP structure of current device */
 /*  The purpose of this register is to speed up the execution */
@@ -290,14 +289,12 @@ void USBH_USR_DeviceSpeedDetected(uint8_t DeviceSpeed)
 */
 void USBH_USR_Device_DescAvailable(void *DeviceDesc)
 { 
-  USBH_DevDesc_TypeDef *hs;
-  hs = DeviceDesc;  
+  USBH_DevDesc_TypeDef *hs = DeviceDesc;  
   
-  
-  LCD_UsrLog("VID : %04Xh\n" , (uint32_t)(*hs).idVendor); 
-  LCD_UsrLog("PID : %04Xh\n" , (uint32_t)(*hs).idProduct); 
-//  if((uint32_t)(*hs).idProduct == 0x155b 
-//   ||(uint32_t)(*hs).idProduct == 0x2000) flgPID = 0	;
+  LCD_UsrLog("VID\\PID : %04Xh\\%04Xh, "
+			 "USB v%X.%02X\n" ,
+			 hs->idVendor,hs->idProduct,
+			 hs->bcdUSB>>8,hs->bcdUSB&0xFF);
 }
 
 /**
@@ -311,6 +308,8 @@ void USBH_USR_DeviceAddressAssigned(void)
   
 }
 
+const char*	EpAttr7[] = {" IN","OUT"}	;
+const char*	EpAttr01[] = {"CTRL","ISOCHRONOUS","BULK","INTERRUPT"}	;
 
 /**
 * @brief  USBH_USR_Conf_Desc 
@@ -323,8 +322,34 @@ void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef * cfgDesc,
                                           USBH_EpDesc_TypeDef *epDesc)
 {
   USBH_InterfaceDesc_TypeDef *id;
+  int		ix,ep,ixep;
   
   id = itfDesc;  
+  
+  LCD_UsrLog("NumberOfInterfaces:%d\n",cfgDesc->bNumInterfaces);
+  
+  for(ix=0;ix<cfgDesc->bNumInterfaces && ix<USBH_MAX_NUM_INTERFACES;ix++){
+    LCD_UsrLog("  Interface: %d, "
+			"NumEndpoints: %d, "
+			"Class: 0x%02X, "
+			"Subclass: 0x%02X, "
+			"Protocol: 0x%02X\n"
+			,itfDesc[ix].bInterfaceNumber
+			,itfDesc[ix].bNumEndpoints
+			,itfDesc[ix].bInterfaceClass
+			,itfDesc[ix].bInterfaceSubClass
+			,itfDesc[ix].bInterfaceProtocol);			
+  
+    for(ep=0;ep<itfDesc[ix].bNumEndpoints && ep<USBH_MAX_NUM_ENDPOINTS;ep++){
+	  ixep = ix * USBH_MAX_NUM_ENDPOINTS + ep	;
+      LCD_UsrLog("    Endpoint: 0x%X, "
+			"%s, %s, %d bytes\n"
+			,epDesc[ixep].bEndpointAddress & 7
+			,EpAttr7[(epDesc[ixep].bEndpointAddress>>7)&1]
+			,EpAttr01[epDesc[ixep].bmAttributes&3]
+			,epDesc[ixep].wMaxPacketSize);
+	}  
+  }
   
   if((*id).bInterfaceClass  == 0x08) {
     LCD_UsrLog((void *)MSG_MSC_CLASS);
@@ -473,7 +498,8 @@ int USBH_USR_MSC_Application(void)
     if(USBH_MSC_Param.MSWriteProtect == DISK_WRITE_PROTECTED) {
       LCD_ErrLog((void *)MSG_WR_PROTECT);
     }
-    
+  
+  
     USBH_USR_ApplicationState = USH_USR_FS_READLIST;
     break;
     

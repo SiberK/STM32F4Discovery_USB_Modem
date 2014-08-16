@@ -39,6 +39,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 
+#include	<stdio.h>
+#include	<string.h>
 #include "usbh_msc_core.h"
 #include "usbh_msc_scsi.h"
 #include "usbh_msc_bot.h"
@@ -160,20 +162,13 @@ void USBH_MSC_ErrorHandle(uint8_t status);
   * @{
   */ 
 
-//55534243123456780000000000000011062000000100000000000000000000";
-//55534243123456780000000000000011062000000100000000000000000000
-char		strMsg[] = "55534243123456780000000000000011062000000100000000000000000000";
-//55534243000000000000000000000011060000000100000000000000000000";
-
-uint8_t		buffMsg[100]	;
-
+//------------------------------------------------
 uint8_t		hex2nbl(char chHex)
-{
- uint8_t	rslt = 	chHex <  '0' ? 0 : chHex <= '9'	? chHex-'0'		: 
+{uint8_t	rslt = 	chHex <  '0' ? 0 : chHex <= '9'	? chHex-'0'		: 
 					chHex <  'A' ? 0 : chHex <= 'F'	? chHex-'A'+10	: 
 					chHex <  'a' ? 0 : chHex <= 'a'	? chHex-'a'+10	: 0	;
  return		rslt	;}
-
+//------------------------------------------------
 int	hexstr2bin(uint8_t* buf,char* strMsg)
 {int	ix = 0	;
 
@@ -182,9 +177,40 @@ int	hexstr2bin(uint8_t* buf,char* strMsg)
    buf[ix>>1] = (hex2nbl(strMsg[ix])<<4) | hex2nbl(strMsg[ix+1])			;
  }
  
- if(ix) ix = (ix>>1)+1	;
+ if(ix) ix = (ix>>1)	;
  return	ix				;}
+//------------------------------------------------
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+char		strMsg[] = "55534243123456780000000000000011062000000100000000000000000000";// MAGIC!!!!
+uint8_t		buffMsg[100]	;
+//------------------------------------------------
+USBH_Status	MY_ModeSwitch(USB_OTG_CORE_HANDLE *pdev,void *phost)
+{
+ int Len = 0,Cnt=0					;
+ USBH_Status Status = USBH_OK		;
+ URB_STATE	UrbState				;
+ USBH_HOST *pphost = phost			;
+ 
+ USBH_DevDesc_TypeDef *hs = &pphost->device_prop.Dev_Desc;
+ 
+ if(hs->idVendor == 0x12D1 && hs->idProduct == 0x155B){
+   Len = hexstr2bin(buffMsg,strMsg)	;// MAGIC
 
+   Status = USBH_BulkSendData(pdev,buffMsg,Len,MSC_Machine.hc_num_out);
+ 
+   if(Status == USBH_OK){
+     printf("==>")	;
+     for(Cnt=0;UrbState != URB_DONE;Cnt++){
+       UrbState = HCD_GetURB_State(pdev ,MSC_Machine.hc_num_out);}
+	 
+     printf("ModeSwitch USBH_BulkSendData done %d\n",Cnt);
+   } 
+   else printf("ModeSwitch USBH_BulkSendData failed %d\n",Cnt);
+ }
+ return Status						;}
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//------------------------------------------------
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 /**
@@ -199,8 +225,6 @@ static USBH_Status USBH_MSC_InterfaceInit ( USB_OTG_CORE_HANDLE *pdev,
 {	 
   USBH_HOST *pphost = phost;
 
-  int Length 				;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  USBH_Status Status		;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
   if((pphost->device_prop.Itf_Desc[0].bInterfaceClass == MSC_CLASS) && \
      (pphost->device_prop.Itf_Desc[0].bInterfaceProtocol == MSC_PROTOCOL))
@@ -253,16 +277,8 @@ static USBH_Status USBH_MSC_InterfaceInit ( USB_OTG_CORE_HANDLE *pdev,
   {
     pphost->usr_cb->DeviceNotSupported(); 
   }
-  
-  
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  Length = hexstr2bin(buffMsg,strMsg)	;
-  Status = USBH_BulkSendData(pdev,buffMsg,Length,MSC_Machine.hc_num_out);
-//  Status = USBH_BulkSendData(pdev,strMsg,64,MSC_Machine.hc_num_out);
-  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  
-  return USBH_OK ;
- 
+
+  return USBH_OK ; 
 }
 
 
@@ -337,6 +353,9 @@ static USBH_Status USBH_MSC_Handle(USB_OTG_CORE_HANDLE *pdev ,
     {
     case USBH_MSC_BOT_INIT_STATE:
       USBH_MSC_Init(pdev);
+	  
+	  MY_ModeSwitch(pdev,phost)		;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	  
       USBH_MSC_BOTXferParam.MSCState = USBH_MSC_BOT_RESET;  
       break;
       
