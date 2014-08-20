@@ -73,25 +73,8 @@ typedef struct _MSC_Process
   uint16_t             MSBulkOutEpSize;
   uint8_t              buff[USBH_MSC_MPS_SIZE];
   uint8_t              maxLun;
-  uint8_t				isCDC;
 }
 MSC_Machine_TypeDef; 
-
-
-
-/* Structure for CDC process */
-typedef struct _CDC_Process
-{
-  uint8_t              hc_num_in; 
-  uint8_t              hc_num_out; 
-  uint8_t              BulkOutEp;
-  uint8_t              BulkInEp;
-  uint16_t             BulkInEpSize;
-  uint16_t             BulkOutEpSize;
-  uint8_t              buff[USBH_MSC_MPS_SIZE];
-  uint8_t              maxLun;
-}
-CDC_Machine_TypeDef; 
 
 
 /**
@@ -125,10 +108,6 @@ CDC_Machine_TypeDef;
 extern USBH_Class_cb_TypeDef  USBH_MSC_cb;
 extern MSC_Machine_TypeDef    MSC_Machine;
 extern uint8_t MSCErrorCount;
-
-extern USBH_Class_cb_TypeDef  USBH_CDC_cb;
-extern MSC_Machine_TypeDef    CDC_Machine;
-extern uint8_t CDCErrorCount;
 
 /**
   * @}

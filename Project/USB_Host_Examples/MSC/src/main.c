@@ -49,7 +49,6 @@
 #include "usbh_core.h"
 #include "usbh_usr.h"
 #include "usbh_msc_core.h"
-#include	"Log.h"
 
 /** @addtogroup USBH_USER
 * @{
@@ -70,7 +69,6 @@
 /** @defgroup USBH_USR_MAIN_Private_Defines
 * @{
 */ 
-void	InitUSART(void);
 /**
 * @}
 */ 
@@ -133,7 +131,6 @@ int main(void)
   To reconfigure the default setting of SystemInit() function, refer to
   system_stm32fxxx.c file
   */  
-	InitUSART();
   
   /* Init Host Library */
   USBH_Init(&USB_OTG_Core, 
@@ -205,53 +202,4 @@ void assert_failed(uint8_t* file, uint32_t line)
 * @}
 */
 
-
-  /* USARTx configured as follow:
-        - BaudRate = 115200 baud  
-        - Word Length = 8 Bits
-        - One Stop Bit
-        - No parity
-        - Hardware flow control disabled (RTS and CTS signals)
-        - Receive and transmit enabled
-  */
-void	InitUSART(void)
-{
- USART_InitTypeDef USART_InitStructure;
-
- USART_InitStructure.USART_BaudRate = 115200;
- USART_InitStructure.USART_WordLength = USART_WordLength_8b;
- USART_InitStructure.USART_StopBits = USART_StopBits_1;
- USART_InitStructure.USART_Parity = USART_Parity_No;
- USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
- USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-
- STM_EVAL_COMInit(COM2, &USART_InitStructure);
-}
-
-int fputc(int ch, FILE *f)
-{
-#define ITM_Port8(n) (*((volatile unsigned char *)(0xE0000000+4*n)))
- ITM_Port8(0) = (uint8_t)ch; /* displays value in ASCII */
- USART_SendData(EVAL_COM2, (uint8_t) ch);
-
- while (USART_GetFlagStatus(EVAL_COM2, USART_FLAG_TC) == RESET);
- while (ITM_Port8(0) == 0);
-
- return ch;
-}
-
-/**
-  * @brief  Read character but no wait if no key
-  * @param  None
-  * @retval None
-  */
-/*  */
-//int Get_Peek_Key(void)
-//{
-//	if (USART_GetFlagStatus(EVAL_COM1, USART_FLAG_RXNE) == RESET) 
-//	{
-//		return EOF;
-//	}
-//	return (USART_ReceiveData(EVAL_COM1));
-//}
 /********* Portions COPYRIGHT 2012 Embest Tech. Co., Ltd.*****END OF FILE******/

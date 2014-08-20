@@ -165,7 +165,6 @@
             <Capability>1</Capability>
             <DriverSelection>4100</DriverSelection>
           </Flash1>
-          <bUseTDR>0</bUseTDR>
           <Flash2>STLink\ST-LINKIII-KEIL.dll</Flash2>
           <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
@@ -412,16 +411,6 @@
               <FileType>1</FileType>
               <FilePath>..\src\usbh_usr_lcd.c</FilePath>
             </File>
-            <File>
-              <FileName>usbh_usr_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\usbh_usr_uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>Log.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\Log.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -450,22 +439,22 @@
             <File>
               <FileName>usbh_msc_bot.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\CDC\src\usbh_msc_bot.c</FilePath>
+              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_bot.c</FilePath>
             </File>
             <File>
               <FileName>usbh_msc_core.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\CDC\src\usbh_msc_core.c</FilePath>
+              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_core.c</FilePath>
             </File>
             <File>
               <FileName>usbh_msc_fatfs.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\CDC\src\usbh_msc_fatfs.c</FilePath>
+              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_fatfs.c</FilePath>
             </File>
             <File>
               <FileName>usbh_msc_scsi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\CDC\src\usbh_msc_scsi.c</FilePath>
+              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_scsi.c</FilePath>
             </File>
             <File>
               <FileName>usb_hcd_int.c</FileName>
@@ -599,201 +588,6 @@
             </File>
           </Files>
         </Group>
-        <Group>
-          <GroupName>HID_Smpl</GroupName>
-          <Files>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\HID\src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_app_lcd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\HID\src\usbh_usr_app_lcd.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_lcd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\HID\src\usbh_usr_lcd.c</FilePath>
-            </File>
-            <File>
-              <FileName>lcd_log_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\HID\inc\lcd_log_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>usb_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\HID\inc\usb_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\HID\inc\usbh_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\HID\inc\usbh_usr.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_lcd.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\HID\inc\usbh_usr_lcd.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\HID\src\usbh_usr_uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_app_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\HID\src\usbh_usr_app_uart.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>MSC_Smpl</GroupName>
-          <Files>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\MSC\src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32fxxx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\MSC\src\stm32fxxx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>system_stm32f4xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\MSC\src\system_stm32f4xx.c</FilePath>
-            </File>
-            <File>
-              <FileName>usb_bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\MSC\src\usb_bsp.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_lcd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\MSC\src\usbh_usr_lcd.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\MSC\src\usbh_usr_uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>lcd_log_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\MSC\inc\lcd_log_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\MSC\inc\stm32f4xx_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>stm32fxxx_it.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\MSC\inc\stm32fxxx_it.h</FilePath>
-            </File>
-            <File>
-              <FileName>usb_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\MSC\inc\usb_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\MSC\inc\usbh_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\MSC\inc\usbh_usr.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>HID_Core</GroupName>
-          <Files>
-            <File>
-              <FileName>usbh_hid_core.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\HID\src\usbh_hid_core.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_keybd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\HID\src\usbh_hid_keybd.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_mouse.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\HID\src\usbh_hid_mouse.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_core.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\HID\inc\usbh_hid_core.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_keybd.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\HID\inc\usbh_hid_keybd.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_mouse.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\HID\inc\usbh_hid_mouse.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>MSC_Core</GroupName>
-          <Files>
-            <File>
-              <FileName>usbh_msc_bot.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_bot.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_core.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_core.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_fatfs.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_fatfs.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_scsi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_scsi.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_bot.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\inc\usbh_msc_bot.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_core.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\inc\usbh_msc_core.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_scsi.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\inc\usbh_msc_scsi.h</FilePath>
-            </File>
-          </Files>
-        </Group>
       </Groups>
     </Target>
     <Target>
@@ -806,7 +600,7 @@
           <Vendor>STMicroelectronics</Vendor>
           <Cpu>IRAM(0x20000000-0x2001FFFF) IRAM2(0x10000000-0x1000FFFF) IROM(0x8000000-0x80FFFFF) CLOCK(25000000) CPUTYPE("Cortex-M4") FPU2</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
-          <StartupFile>"Startup\ST\STM32F4xx\startup_stm32f40xx.s" ("STM32F40xx Startup Code")</StartupFile>
+          <StartupFile>"Startup\ST\STM32F4xx\startup_stm32f4xx.s" ("STM32F4xx Startup Code")</StartupFile>
           <FlashDriverDll>UL2CM3(-O207 -S0 -C0 -FO7 -FD20000000 -FC800 -FN1 -FF0STM32F4xx_1024 -FS08000000 -FL0100000)</FlashDriverDll>
           <DeviceId>6103</DeviceId>
           <RegisterFile>stm32f4xx.h</RegisterFile>
@@ -816,10 +610,10 @@
           <Linker></Linker>
           <OHString></OHString>
           <InfinionOptionDll></InfinionOptionDll>
-          <SLE66CMisc>-DSTM32F40XX</SLE66CMisc>
+          <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>SFD\ST\STM32F4xx\STM32F40x.sfr</SFDFile>
+          <SFDFile>SFD\ST\STM32F4xx\STM32F4xx.sfr</SFDFile>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
           <IncludePath></IncludePath>
@@ -837,7 +631,7 @@
           <OutputName>Project</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>1</CreateHexFile>
+          <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath>.\Discover-More_USBH-FS\</ListingPath>
@@ -890,7 +684,7 @@
         </CommonProperty>
         <DllOption>
           <SimDllName>SARMCM3.DLL</SimDllName>
-          <SimDllArguments>-MPU -REMAP</SimDllArguments>
+          <SimDllArguments>-MPU</SimDllArguments>
           <SimDlgDll>DCM.DLL</SimDlgDll>
           <SimDlgDllArguments>-pCM4</SimDlgDllArguments>
           <TargetDllName>SARMCM3.DLL</TargetDllName>
@@ -929,7 +723,7 @@
             <RestoreTracepoints>0</RestoreTracepoints>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>13</TargetSelection>
+          <TargetSelection>8</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -943,7 +737,7 @@
             <PeripheralDll></PeripheralDll>
             <PeripheralDllArguments></PeripheralDllArguments>
             <InitializationFile></InitializationFile>
-            <Driver>STLink\ST-LINKIII-KEIL_SWO.dll</Driver>
+            <Driver>STLink\ST-LINKIII-KEIL.dll</Driver>
           </TargetDlls>
         </DebugOption>
         <Utilities>
@@ -951,12 +745,11 @@
             <UseTargetDll>1</UseTargetDll>
             <UseExternalTool>0</UseExternalTool>
             <RunIndependent>0</RunIndependent>
-            <UpdateFlashBeforeDebugging>0</UpdateFlashBeforeDebugging>
+            <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4104</DriverSelection>
+            <DriverSelection>4100</DriverSelection>
           </Flash1>
-          <bUseTDR>0</bUseTDR>
-          <Flash2>STLink\ST-LINKIII-KEIL_SWO.dll</Flash2>
+          <Flash2>STLink\ST-LINKIII-KEIL.dll</Flash2>
           <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
         </Utilities>
@@ -998,7 +791,7 @@
             <hadIRAM>1</hadIRAM>
             <hadXRAM>0</hadXRAM>
             <uocXRam>0</uocXRam>
-            <RvdsVP>2</RvdsVP>
+            <RvdsVP>1</RvdsVP>
             <hadIRAM2>1</hadIRAM2>
             <hadIROM2>0</hadIROM2>
             <StupSel>8</StupSel>
@@ -1125,7 +918,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>0</OneElfS>
@@ -1141,7 +934,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER,STM32F4XX,USE_USB_OTG_FS,USE_ULPI_PHY</Define>
               <Undefine></Undefine>
-              <IncludePath>..\inc;..\..\..\..\Libraries\CMSIS\Device\ST\STM32F4xx\Include;..\..\..\..\Libraries\STM32F4xx_StdPeriph_Driver\inc;..\..\..\..\Libraries\STM32_USB_OTG_Driver\inc;..\..\..\..\Libraries\STM32_USB_HOST_Library\Core\inc;..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\CDC\inc;..\..\..\..\Utilities\STM32F4-Discovery;..\..\..\..\Utilities\fat_fs\inc</IncludePath>
+              <IncludePath>..\inc;..\..\..\..\Libraries\CMSIS\Device\ST\STM32F4xx\Include;..\..\..\..\Libraries\STM32F4xx_StdPeriph_Driver\inc;..\..\..\..\Libraries\STM32_USB_OTG_Driver\inc;..\..\..\..\Libraries\STM32_USB_HOST_Library\Core\inc;..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\inc;..\..\..\..\Utilities\STM32F4-Discovery;..\..\..\..\Utilities\fat_fs\inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1201,56 +994,6 @@
               <FileName>usbh_usr_lcd.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\usbh_usr_lcd.c</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>0</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>0</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>0</Optim>
-                    <oTime>2</oTime>
-                    <SplitLS>2</SplitLS>
-                    <OneElfS>2</OneElfS>
-                    <Strict>2</Strict>
-                    <EnumInt>2</EnumInt>
-                    <PlainCh>2</PlainCh>
-                    <Ropi>2</Ropi>
-                    <Rwpi>2</Rwpi>
-                    <wLevel>0</wLevel>
-                    <uThumb>2</uThumb>
-                    <uSurpInc>2</uSurpInc>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
-            </File>
-            <File>
-              <FileName>usbh_usr_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\usbh_usr_uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>Log.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\Log.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1280,22 +1023,22 @@
             <File>
               <FileName>usbh_msc_bot.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\CDC\src\usbh_msc_bot.c</FilePath>
+              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_bot.c</FilePath>
             </File>
             <File>
               <FileName>usbh_msc_core.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\CDC\src\usbh_msc_core.c</FilePath>
+              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_core.c</FilePath>
             </File>
             <File>
               <FileName>usbh_msc_fatfs.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\CDC\src\usbh_msc_fatfs.c</FilePath>
+              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_fatfs.c</FilePath>
             </File>
             <File>
               <FileName>usbh_msc_scsi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\CDC\src\usbh_msc_scsi.c</FilePath>
+              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_scsi.c</FilePath>
             </File>
             <File>
               <FileName>usb_hcd_int.c</FileName>
@@ -1411,576 +1154,21 @@
               <FileName>stm32f4_discovery_lcd.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\Utilities\STM32F4-Discovery\stm32f4_discovery_lcd.c</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>0</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>0</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>0</Optim>
-                    <oTime>2</oTime>
-                    <SplitLS>2</SplitLS>
-                    <OneElfS>2</OneElfS>
-                    <Strict>2</Strict>
-                    <EnumInt>2</EnumInt>
-                    <PlainCh>2</PlainCh>
-                    <Ropi>2</Ropi>
-                    <Rwpi>2</Rwpi>
-                    <wLevel>0</wLevel>
-                    <uThumb>2</uThumb>
-                    <uSurpInc>2</uSurpInc>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
             </File>
             <File>
               <FileName>lcd_log.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\Utilities\STM32F4-Discovery\lcd_log.c</FilePath>
-              <FileOption>
-                <CommonProperty>
-                  <UseCPPCompiler>2</UseCPPCompiler>
-                  <RVCTCodeConst>0</RVCTCodeConst>
-                  <RVCTZI>0</RVCTZI>
-                  <RVCTOtherData>0</RVCTOtherData>
-                  <ModuleSelection>0</ModuleSelection>
-                  <IncludeInBuild>0</IncludeInBuild>
-                  <AlwaysBuild>2</AlwaysBuild>
-                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
-                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
-                  <PublicsOnly>2</PublicsOnly>
-                  <StopOnExitCode>11</StopOnExitCode>
-                  <CustomArgument></CustomArgument>
-                  <IncludeLibraryModules></IncludeLibraryModules>
-                </CommonProperty>
-                <FileArmAds>
-                  <Cads>
-                    <interw>2</interw>
-                    <Optim>0</Optim>
-                    <oTime>2</oTime>
-                    <SplitLS>2</SplitLS>
-                    <OneElfS>2</OneElfS>
-                    <Strict>2</Strict>
-                    <EnumInt>2</EnumInt>
-                    <PlainCh>2</PlainCh>
-                    <Ropi>2</Ropi>
-                    <Rwpi>2</Rwpi>
-                    <wLevel>0</wLevel>
-                    <uThumb>2</uThumb>
-                    <uSurpInc>2</uSurpInc>
-                    <VariousControls>
-                      <MiscControls></MiscControls>
-                      <Define></Define>
-                      <Undefine></Undefine>
-                      <IncludePath></IncludePath>
-                    </VariousControls>
-                  </Cads>
-                </FileArmAds>
-              </FileOption>
             </File>
           </Files>
         </Group>
         <Group>
           <GroupName>Readme</GroupName>
-          <GroupOption>
-            <CommonProperty>
-              <UseCPPCompiler>0</UseCPPCompiler>
-              <RVCTCodeConst>0</RVCTCodeConst>
-              <RVCTZI>0</RVCTZI>
-              <RVCTOtherData>0</RVCTOtherData>
-              <ModuleSelection>0</ModuleSelection>
-              <IncludeInBuild>0</IncludeInBuild>
-              <AlwaysBuild>2</AlwaysBuild>
-              <GenerateAssemblyFile>2</GenerateAssemblyFile>
-              <AssembleAssemblyFile>2</AssembleAssemblyFile>
-              <PublicsOnly>2</PublicsOnly>
-              <StopOnExitCode>11</StopOnExitCode>
-              <CustomArgument></CustomArgument>
-              <IncludeLibraryModules></IncludeLibraryModules>
-            </CommonProperty>
-            <GroupArmAds>
-              <Cads>
-                <interw>2</interw>
-                <Optim>0</Optim>
-                <oTime>2</oTime>
-                <SplitLS>2</SplitLS>
-                <OneElfS>2</OneElfS>
-                <Strict>2</Strict>
-                <EnumInt>2</EnumInt>
-                <PlainCh>2</PlainCh>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <wLevel>0</wLevel>
-                <uThumb>2</uThumb>
-                <uSurpInc>2</uSurpInc>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Cads>
-              <Aads>
-                <interw>2</interw>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <thumb>2</thumb>
-                <SplitLS>2</SplitLS>
-                <SwStkChk>2</SwStkChk>
-                <NoWarn>2</NoWarn>
-                <uSurpInc>2</uSurpInc>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Aads>
-            </GroupArmAds>
-          </GroupOption>
           <Files>
             <File>
               <FileName>readme.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\readme.txt</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>HID_Smpl</GroupName>
-          <GroupOption>
-            <CommonProperty>
-              <UseCPPCompiler>0</UseCPPCompiler>
-              <RVCTCodeConst>0</RVCTCodeConst>
-              <RVCTZI>0</RVCTZI>
-              <RVCTOtherData>0</RVCTOtherData>
-              <ModuleSelection>0</ModuleSelection>
-              <IncludeInBuild>0</IncludeInBuild>
-              <AlwaysBuild>2</AlwaysBuild>
-              <GenerateAssemblyFile>2</GenerateAssemblyFile>
-              <AssembleAssemblyFile>2</AssembleAssemblyFile>
-              <PublicsOnly>2</PublicsOnly>
-              <StopOnExitCode>11</StopOnExitCode>
-              <CustomArgument></CustomArgument>
-              <IncludeLibraryModules></IncludeLibraryModules>
-            </CommonProperty>
-            <GroupArmAds>
-              <Cads>
-                <interw>2</interw>
-                <Optim>0</Optim>
-                <oTime>2</oTime>
-                <SplitLS>2</SplitLS>
-                <OneElfS>2</OneElfS>
-                <Strict>2</Strict>
-                <EnumInt>2</EnumInt>
-                <PlainCh>2</PlainCh>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <wLevel>0</wLevel>
-                <uThumb>2</uThumb>
-                <uSurpInc>2</uSurpInc>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Cads>
-              <Aads>
-                <interw>2</interw>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <thumb>2</thumb>
-                <SplitLS>2</SplitLS>
-                <SwStkChk>2</SwStkChk>
-                <NoWarn>2</NoWarn>
-                <uSurpInc>2</uSurpInc>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Aads>
-            </GroupArmAds>
-          </GroupOption>
-          <Files>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\HID\src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_app_lcd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\HID\src\usbh_usr_app_lcd.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_lcd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\HID\src\usbh_usr_lcd.c</FilePath>
-            </File>
-            <File>
-              <FileName>lcd_log_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\HID\inc\lcd_log_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>usb_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\HID\inc\usb_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\HID\inc\usbh_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\HID\inc\usbh_usr.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_lcd.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\HID\inc\usbh_usr_lcd.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\HID\src\usbh_usr_uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_app_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\HID\src\usbh_usr_app_uart.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>MSC_Smpl</GroupName>
-          <GroupOption>
-            <CommonProperty>
-              <UseCPPCompiler>0</UseCPPCompiler>
-              <RVCTCodeConst>0</RVCTCodeConst>
-              <RVCTZI>0</RVCTZI>
-              <RVCTOtherData>0</RVCTOtherData>
-              <ModuleSelection>0</ModuleSelection>
-              <IncludeInBuild>0</IncludeInBuild>
-              <AlwaysBuild>2</AlwaysBuild>
-              <GenerateAssemblyFile>2</GenerateAssemblyFile>
-              <AssembleAssemblyFile>2</AssembleAssemblyFile>
-              <PublicsOnly>2</PublicsOnly>
-              <StopOnExitCode>11</StopOnExitCode>
-              <CustomArgument></CustomArgument>
-              <IncludeLibraryModules></IncludeLibraryModules>
-            </CommonProperty>
-            <GroupArmAds>
-              <Cads>
-                <interw>2</interw>
-                <Optim>0</Optim>
-                <oTime>2</oTime>
-                <SplitLS>2</SplitLS>
-                <OneElfS>2</OneElfS>
-                <Strict>2</Strict>
-                <EnumInt>2</EnumInt>
-                <PlainCh>2</PlainCh>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <wLevel>0</wLevel>
-                <uThumb>2</uThumb>
-                <uSurpInc>2</uSurpInc>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Cads>
-              <Aads>
-                <interw>2</interw>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <thumb>2</thumb>
-                <SplitLS>2</SplitLS>
-                <SwStkChk>2</SwStkChk>
-                <NoWarn>2</NoWarn>
-                <uSurpInc>2</uSurpInc>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Aads>
-            </GroupArmAds>
-          </GroupOption>
-          <Files>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\MSC\src\main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32fxxx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\MSC\src\stm32fxxx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>system_stm32f4xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\MSC\src\system_stm32f4xx.c</FilePath>
-            </File>
-            <File>
-              <FileName>usb_bsp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\MSC\src\usb_bsp.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_lcd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\MSC\src\usbh_usr_lcd.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\MSC\src\usbh_usr_uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>lcd_log_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\MSC\inc\lcd_log_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f4xx_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\MSC\inc\stm32f4xx_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>stm32fxxx_it.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\MSC\inc\stm32fxxx_it.h</FilePath>
-            </File>
-            <File>
-              <FileName>usb_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\MSC\inc\usb_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_conf.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\MSC\inc\usbh_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_usr.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\MSC\inc\usbh_usr.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>HID_Core</GroupName>
-          <GroupOption>
-            <CommonProperty>
-              <UseCPPCompiler>0</UseCPPCompiler>
-              <RVCTCodeConst>0</RVCTCodeConst>
-              <RVCTZI>0</RVCTZI>
-              <RVCTOtherData>0</RVCTOtherData>
-              <ModuleSelection>0</ModuleSelection>
-              <IncludeInBuild>0</IncludeInBuild>
-              <AlwaysBuild>2</AlwaysBuild>
-              <GenerateAssemblyFile>2</GenerateAssemblyFile>
-              <AssembleAssemblyFile>2</AssembleAssemblyFile>
-              <PublicsOnly>2</PublicsOnly>
-              <StopOnExitCode>11</StopOnExitCode>
-              <CustomArgument></CustomArgument>
-              <IncludeLibraryModules></IncludeLibraryModules>
-            </CommonProperty>
-            <GroupArmAds>
-              <Cads>
-                <interw>2</interw>
-                <Optim>0</Optim>
-                <oTime>2</oTime>
-                <SplitLS>2</SplitLS>
-                <OneElfS>2</OneElfS>
-                <Strict>2</Strict>
-                <EnumInt>2</EnumInt>
-                <PlainCh>2</PlainCh>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <wLevel>0</wLevel>
-                <uThumb>2</uThumb>
-                <uSurpInc>2</uSurpInc>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Cads>
-              <Aads>
-                <interw>2</interw>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <thumb>2</thumb>
-                <SplitLS>2</SplitLS>
-                <SwStkChk>2</SwStkChk>
-                <NoWarn>2</NoWarn>
-                <uSurpInc>2</uSurpInc>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Aads>
-            </GroupArmAds>
-          </GroupOption>
-          <Files>
-            <File>
-              <FileName>usbh_hid_core.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\HID\src\usbh_hid_core.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_keybd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\HID\src\usbh_hid_keybd.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_mouse.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\HID\src\usbh_hid_mouse.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_core.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\HID\inc\usbh_hid_core.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_keybd.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\HID\inc\usbh_hid_keybd.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_hid_mouse.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\HID\inc\usbh_hid_mouse.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>MSC_Core</GroupName>
-          <GroupOption>
-            <CommonProperty>
-              <UseCPPCompiler>0</UseCPPCompiler>
-              <RVCTCodeConst>0</RVCTCodeConst>
-              <RVCTZI>0</RVCTZI>
-              <RVCTOtherData>0</RVCTOtherData>
-              <ModuleSelection>0</ModuleSelection>
-              <IncludeInBuild>0</IncludeInBuild>
-              <AlwaysBuild>2</AlwaysBuild>
-              <GenerateAssemblyFile>2</GenerateAssemblyFile>
-              <AssembleAssemblyFile>2</AssembleAssemblyFile>
-              <PublicsOnly>2</PublicsOnly>
-              <StopOnExitCode>11</StopOnExitCode>
-              <CustomArgument></CustomArgument>
-              <IncludeLibraryModules></IncludeLibraryModules>
-            </CommonProperty>
-            <GroupArmAds>
-              <Cads>
-                <interw>2</interw>
-                <Optim>0</Optim>
-                <oTime>2</oTime>
-                <SplitLS>2</SplitLS>
-                <OneElfS>2</OneElfS>
-                <Strict>2</Strict>
-                <EnumInt>2</EnumInt>
-                <PlainCh>2</PlainCh>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <wLevel>0</wLevel>
-                <uThumb>2</uThumb>
-                <uSurpInc>2</uSurpInc>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Cads>
-              <Aads>
-                <interw>2</interw>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <thumb>2</thumb>
-                <SplitLS>2</SplitLS>
-                <SwStkChk>2</SwStkChk>
-                <NoWarn>2</NoWarn>
-                <uSurpInc>2</uSurpInc>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Aads>
-            </GroupArmAds>
-          </GroupOption>
-          <Files>
-            <File>
-              <FileName>usbh_msc_bot.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_bot.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_core.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_core.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_fatfs.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_fatfs.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_scsi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\src\usbh_msc_scsi.c</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_bot.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\inc\usbh_msc_bot.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_core.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\inc\usbh_msc_core.h</FilePath>
-            </File>
-            <File>
-              <FileName>usbh_msc_scsi.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\MSC\inc\usbh_msc_scsi.h</FilePath>
             </File>
           </Files>
         </Group>

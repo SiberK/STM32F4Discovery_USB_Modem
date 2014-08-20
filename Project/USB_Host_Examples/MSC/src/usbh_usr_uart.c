@@ -35,7 +35,6 @@
 #include "usbh_msc_core.h"
 #include "usbh_msc_scsi.h"
 #include "usbh_msc_bot.h"
-#include	"Log.h"
 
 /** @addtogroup USBH_USER
 * @{
@@ -175,11 +174,11 @@ void USBH_USR_Init(void)
     STM_EVAL_LEDInit(LED4); 
 
 		/* init the Debug COM */
-//    STM32f4_Discovery_Debug_Init();
+    STM32f4_Discovery_Debug_Init();
       
-    Log.d("> USB OTG FS MSC Host \n\r");
-    Log.d("> USB Host library started. \n\r"); 
-    Log.d("> USB Host Library v2.1.0 \n\r" );
+    printf("> USB OTG FS MSC Host \n\r");
+    printf("> USB Host library started. \n\r"); 
+    printf("> USB Host Library v2.1.0 \n\r" );
   }
 }
 
@@ -191,7 +190,7 @@ void USBH_USR_Init(void)
 */
 void USBH_USR_DeviceAttached(void)
 {
-  Log.d((void *)MSG_DEV_ATTACHED);
+  printf((void *)MSG_DEV_ATTACHED);
 }
 
 
@@ -204,7 +203,7 @@ void USBH_USR_UnrecoveredError (void)
 {
   
   /* Set default screen color*/ 
-  Log.d((void *)MSG_UNREC_ERROR); 
+  printf((void *)MSG_UNREC_ERROR); 
 }
 
 
@@ -217,7 +216,7 @@ void USBH_USR_UnrecoveredError (void)
 void USBH_USR_DeviceDisconnected (void)
 {
   /* Set default screen color*/
-  Log.d((void *)MSG_DEV_DISCONNECTED);
+  printf((void *)MSG_DEV_DISCONNECTED);
 }
 /**
 * @brief  USBH_USR_ResetUSBDevice 
@@ -240,19 +239,19 @@ void USBH_USR_DeviceSpeedDetected(uint8_t DeviceSpeed)
 {
   if(DeviceSpeed == HPRT0_PRTSPD_HIGH_SPEED)
   {
-    Log.d((void *)MSG_DEV_HIGHSPEED);
+    printf((void *)MSG_DEV_HIGHSPEED);
   }  
   else if(DeviceSpeed == HPRT0_PRTSPD_FULL_SPEED)
   {
-    Log.d((void *)MSG_DEV_FULLSPEED);
+    printf((void *)MSG_DEV_FULLSPEED);
   }
   else if(DeviceSpeed == HPRT0_PRTSPD_LOW_SPEED)
   {
-    Log.d((void *)MSG_DEV_LOWSPEED);
+    printf((void *)MSG_DEV_LOWSPEED);
   }
   else
   {
-    Log.d((void *)MSG_DEV_ERROR);
+    printf((void *)MSG_DEV_ERROR);
   }
 }
 
@@ -268,11 +267,8 @@ void USBH_USR_Device_DescAvailable(void *DeviceDesc)
   hs = DeviceDesc;  
   
   
-  Log.d("VID\\PID : %04Xh\\%04Xh, "
-			 "USB v%X.%02X\n" ,
-			 hs->idVendor,hs->idProduct,
-			 hs->bcdUSB>>8,hs->bcdUSB&0xFF);
-  
+  printf("> VID : %04Xh\n\r" , (uint32_t)(*hs).idVendor); 
+  printf("> PID : %04Xh\n\r" , (uint32_t)(*hs).idProduct); 
 }
 
 /**
@@ -287,9 +283,6 @@ void USBH_USR_DeviceAddressAssigned(void)
 }
 
 
-const char*	EpAttr7[] = {"OUT"," IN"}	;
-const char*	EpAttr01[] = {"CTRL","ISOCHRONOUS","BULK","INTERRUPT"}	;
-
 /**
 * @brief  USBH_USR_Conf_Desc 
 *         Displays the message on LCD for configuration descriptor
@@ -301,37 +294,17 @@ void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef * cfgDesc,
                                           USBH_EpDesc_TypeDef *epDesc)
 {
   USBH_InterfaceDesc_TypeDef *id;
-  int		ix,ep,ixep;
   
   id = itfDesc;  
   
-  Log.d("NumberOfInterfaces:%d\n",cfgDesc->bNumInterfaces);
-  
-  for(ix=0;ix<cfgDesc->bNumInterfaces && ix<USBH_MAX_NUM_INTERFACES;ix++){
-    Log.d("  Interface: %d, "
-			"NumEndpoints: %d, "
-			"Class: 0x%02X, "
-			"Subclass: 0x%02X, "
-			"Protocol: 0x%02X\n"
-			,itfDesc[ix].bInterfaceNumber
-			,itfDesc[ix].bNumEndpoints
-			,itfDesc[ix].bInterfaceClass
-			,itfDesc[ix].bInterfaceSubClass
-			,itfDesc[ix].bInterfaceProtocol);			
-  
-    for(ep=0;ep<itfDesc[ix].bNumEndpoints && ep<USBH_MAX_NUM_ENDPOINTS;ep++){
-	  ixep = ix * USBH_MAX_NUM_ENDPOINTS + ep	;
-      Log.d("    Endpoint: 0x%X, "
-			"%s, %s, %d bytes\n"
-			,epDesc[ixep].bEndpointAddress & 7
-			,EpAttr7[(epDesc[ixep].bEndpointAddress>>7)&1]
-			,EpAttr01[epDesc[ixep].bmAttributes&3]
-			,epDesc[ixep].wMaxPacketSize);
-	}  
+  if((*id).bInterfaceClass  == 0x08)
+  {
+    printf((void *)MSG_MSC_CLASS);
   }
-  
-  if((*id).bInterfaceClass  == 0x08)  	  Log.d((void *)MSG_MSC_CLASS)	;
-  else if((*id).bInterfaceClass  == 0x03) Log.d((void *)MSG_HID_CLASS)	;      
+  else if((*id).bInterfaceClass  == 0x03)
+  {
+    printf((void *)MSG_HID_CLASS);
+  }    
 }
 
 /**
@@ -342,7 +315,7 @@ void USBH_USR_Configuration_DescAvailable(USBH_CfgDesc_TypeDef * cfgDesc,
 */
 void USBH_USR_Manufacturer_String(void *ManufacturerString)
 {
-  Log.d("> Manufacturer : %s\n\r", (char *)ManufacturerString);
+  printf("> Manufacturer : %s\n\r", (char *)ManufacturerString);
 }
 
 /**
@@ -353,7 +326,7 @@ void USBH_USR_Manufacturer_String(void *ManufacturerString)
 */
 void USBH_USR_Product_String(void *ProductString)
 {
-  Log.d("> Product : %s\n\r", (char *)ProductString);  
+  printf("> Product : %s\n\r", (char *)ProductString);  
 }
 
 /**
@@ -364,7 +337,7 @@ void USBH_USR_Product_String(void *ProductString)
 */
 void USBH_USR_SerialNum_String(void *SerialNumString)
 {
-  Log.d( "> Serial Number : %s\n\r", (char *)SerialNumString);    
+  printf( "> Serial Number : %s\n\r", (char *)SerialNumString);    
 } 
 
 
@@ -379,10 +352,10 @@ void USBH_USR_EnumerationDone(void)
 {
   
   /* Enumeration complete */
-  Log.d((void *)MSG_DEV_ENUMERATED);
+  printf((void *)MSG_DEV_ENUMERATED);
   
-  Log.d("> To see the root content of the disk : \n\r" );
-  Log.d("> Press Key... \n\r");
+  printf("> To see the root content of the disk : \n\r" );
+  printf("> Press Key... \n\r");
   
 } 
 
@@ -395,7 +368,7 @@ void USBH_USR_EnumerationDone(void)
 */
 void USBH_USR_DeviceNotSupported(void)
 {
-  Log.d("> Device not supported. \n\r"); 
+  printf("> Device not supported. \n\r"); 
 }  
 
 
@@ -407,15 +380,18 @@ void USBH_USR_DeviceNotSupported(void)
 */
 USBH_USR_Status USBH_USR_UserInput(void)
 {
-  USBH_USR_Status usbh_usr_status = USBH_USR_NO_RESP	;
+  USBH_USR_Status usbh_usr_status;
   
-//  /*USER1 B3 is in polling mode to detect user action */
-//  if(Get_Peek_Key() != EOF) 
-  /*Key B3 is in polling mode to detect user action */
-  if(STM_EVAL_PBGetState(BUTTON_USER) == SET){
-    usbh_usr_status = USBH_USR_RESP_OK			;} 
+  usbh_usr_status = USBH_USR_NO_RESP;  
+  
+  /*USER1 B3 is in polling mode to detect user action */
+  if(Get_Peek_Key() != EOF) 
+  {
+    usbh_usr_status = USBH_USR_RESP_OK;
+    																				
+  } 
   return usbh_usr_status;
-}
+}  
 
 /**
 * @brief  USBH_USR_OverCurrentDetected
@@ -425,7 +401,7 @@ USBH_USR_Status USBH_USR_UserInput(void)
 */
 void USBH_USR_OverCurrentDetected (void)
 {
-  Log.d ("> Overcurrent detected.\n\r");
+  printf ("> Overcurrent detected.\n\r");
 }
 
 
@@ -449,16 +425,16 @@ int USBH_USR_MSC_Application(void)
     if ( f_mount( 0, &fatfs ) != FR_OK ) 
     {
       /* efs initialisation fails*/
-      Log.d("> Cannot initialize File System.\n\r");
+      printf("> Cannot initialize File System.\n\r");
       return(-1);
     }
-    Log.d("> File System initialized.\n\r");
-    Log.d("> Disk capacity : %u Bytes\n\r", USBH_MSC_Param.MSCapacity * \
+    printf("> File System initialized.\n\r");
+    printf("> Disk capacity : %u Bytes\n\r", USBH_MSC_Param.MSCapacity * \
       USBH_MSC_Param.MSPageLength); 
     
     if(USBH_MSC_Param.MSWriteProtect == DISK_WRITE_PROTECTED)
     {
-      Log.d((void *)MSG_WR_PROTECT);
+      printf((void *)MSG_WR_PROTECT);
     }
     
     USBH_USR_ApplicationState = USH_USR_FS_READLIST;
@@ -466,7 +442,7 @@ int USBH_USR_MSC_Application(void)
     
   case USH_USR_FS_READLIST:
     
-    Log.d((void *)MSG_ROOT_CONT);
+    printf((void *)MSG_ROOT_CONT);
     Explore_Disk("0:/", 1);
     line_idx = 0;   
     USBH_USR_ApplicationState = USH_USR_FS_WRITEFILE;
@@ -474,23 +450,22 @@ int USBH_USR_MSC_Application(void)
     break;
     
   case USH_USR_FS_WRITEFILE:
-    Log.d("Press Key to write file\n\r");
+    printf("Press Key to write file\n\r");
     USB_OTG_BSP_mDelay(100);
 
     /*USER1 B3 in polling*/
     while((HCD_IsDeviceConnected(&USB_OTG_Core)) && \
-      (STM_EVAL_PBGetState (BUTTON_USER) == RESET))          
-//      (Get_Peek_Key() != EOF))          
+      (Get_Peek_Key() != EOF))          
     {
       Toggle_Leds();
     }
 
     /* Writes a text file, STM32.TXT in the disk*/
-    Log.d("> Writing File to disk flash ...\n");
+    printf("> Writing File to disk flash ...\n");
     if(USBH_MSC_Param.MSWriteProtect == DISK_WRITE_PROTECTED)
     {
       
-      Log.d ( "> Disk flash is write protected \n");
+      printf ( "> Disk flash is write protected \n");
       USBH_USR_ApplicationState = USH_USR_FS_DRAW;
       break;
     }
@@ -506,11 +481,11 @@ int USBH_USR_MSC_Application(void)
       
       if((bytesWritten == 0) || (res != FR_OK)) /*EOF or Error*/
       {
-        Log.d("> STM32.TXT CANNOT be writen.\n");
+        printf("> STM32.TXT CANNOT be writen.\n");
       }
       else
       {
-        Log.d("> 'STM32.TXT' file created\n");
+        printf("> 'STM32.TXT' file created\n");
       }
       
       /*close file and filesystem*/
@@ -520,7 +495,7 @@ int USBH_USR_MSC_Application(void)
     
     else
     {
-      Log.d ("> STM32.TXT created in the disk\n");
+      printf ("> STM32.TXT created in the disk\n");
     }
 
     USBH_USR_ApplicationState = USH_USR_FS_INIT;   
@@ -565,12 +540,11 @@ static uint8_t Explore_Disk (char* path , uint8_t recu_level)
       if(line_idx > 9)
       {
         line_idx = 0;
-        Log.d("Press Key to continue...\r\n");
+        printf("Press Key to continue...\r\n");
 
         /*USER1 B3 in polling*/
         while((HCD_IsDeviceConnected(&USB_OTG_Core)) && \
-      (STM_EVAL_PBGetState (BUTTON_USER) == RESET))          
-//              (Get_Peek_Key() != EOF))
+              (Get_Peek_Key() != EOF))
         {
           Toggle_Leds();
           
@@ -579,21 +553,21 @@ static uint8_t Explore_Disk (char* path , uint8_t recu_level)
       
       if(recu_level == 1)
       {
-        Log.d("   |__");
+        printf("   |__");
       }
       else if(recu_level == 2)
       {
-        Log.d("   |   |__");
+        printf("   |   |__");
       }
       if((fno.fattrib & AM_MASK) == AM_DIR)
       {
         strcat(tmp, "\n"); 
-        Log.d((void *)tmp);
+        printf((void *)tmp);
       }
       else
       {
         strcat(tmp, "\n"); 
-        Log.d((void *)tmp);
+        printf((void *)tmp);
       }
 
       if(((fno.fattrib & AM_MASK) == AM_DIR)&&(recu_level == 1))

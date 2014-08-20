@@ -39,14 +39,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#include	<stdio.h>
-#include	<string.h>
 #include "usbh_msc_core.h"
 #include "usbh_msc_scsi.h"
 #include "usbh_msc_bot.h"
-#include "usbh_ioreq.h"
 #include "usbh_core.h"
-#include	"Log.h"
 
 
 /** @addtogroup USBH_LIB
@@ -118,15 +114,23 @@ uint8_t MSCErrorCount = 0;
   * @{
   */ 
 
-static USBH_Status USBH_MSC_InterfaceInit  (USB_OTG_CORE_HANDLE *pdev ,void *phost);
-static void USBH_MSC_InterfaceDeInit  (USB_OTG_CORE_HANDLE *pdev ,void *phost);
-static USBH_Status USBH_MSC_Handle(USB_OTG_CORE_HANDLE *pdev ,void *phost);
-static USBH_Status USBH_MSC_ClassRequest(USB_OTG_CORE_HANDLE *pdev,void *phost);
-static USBH_Status USBH_MSC_BOTReset(USB_OTG_CORE_HANDLE *pdev,USBH_HOST *phost);
-static USBH_Status USBH_CDC_Reset(USB_OTG_CORE_HANDLE *pdev,USBH_HOST *phost);
-static USBH_Status USBH_MSC_GETMaxLUN(USB_OTG_CORE_HANDLE *pdev,USBH_HOST *phost);
-							   
-USBH_Status	MY_ModeSwitch(USB_OTG_CORE_HANDLE *pdev,void *phost);
+static USBH_Status USBH_MSC_InterfaceInit  (USB_OTG_CORE_HANDLE *pdev , 
+                                            void *phost);
+
+static void USBH_MSC_InterfaceDeInit  (USB_OTG_CORE_HANDLE *pdev , 
+                                       void *phost);
+
+static USBH_Status USBH_MSC_Handle(USB_OTG_CORE_HANDLE *pdev , 
+                            void *phost);
+
+static USBH_Status USBH_MSC_ClassRequest(USB_OTG_CORE_HANDLE *pdev , 
+                                         void *phost);
+
+static USBH_Status USBH_MSC_BOTReset(USB_OTG_CORE_HANDLE *pdev,
+                              USBH_HOST *phost);
+static USBH_Status USBH_MSC_GETMaxLUN(USB_OTG_CORE_HANDLE *pdev,
+                               USBH_HOST *phost);
+
 
 USBH_Class_cb_TypeDef  USBH_MSC_cb = 
 {
@@ -155,68 +159,6 @@ void USBH_MSC_ErrorHandle(uint8_t status);
 /** @defgroup USBH_MSC_CORE_Private_Functions
   * @{
   */ 
-#define		CDC_CLASS1		0xFF
-#define		CDC_CLASS2		0x00
-#define		CDC_PROTOCOL1	0x61
-#define		CDC_PROTOCOL2	0x63
-#define		CDC_PROTOCOL3	0x62
-
-USBH_Status	USBH_MY_InterfaceInit(USB_OTG_CORE_HANDLE *pdev,void *phost,uint8_t InterfaceClass,uint8_t InterfaceProtocol)
-{
-  USBH_Status	Status = USBH_FAIL			;
-  USBH_HOST 	*pphost = phost				;
-  int			if_ix = 1,ep_ix=0,CntEp,ie_ix		;
-  
-  USBH_InterfaceDesc_TypeDef        *Itf_Desc	;
-  USBH_EpDesc_TypeDef               *Ep_Desc,*ep_in=0,*ep_out=0		;
-  
-  for(if_ix=0;if_ix<pphost->device_prop.Cfg_Desc.bNumInterfaces;if_ix++){
-    Itf_Desc = &pphost->device_prop.Itf_Desc[if_ix]				;
-    if(Itf_Desc->bInterfaceClass    != InterfaceClass || 
-	   Itf_Desc->bInterfaceProtocol != InterfaceProtocol) continue	;
-	
-	ep_in = ep_out = 0				;
-	CntEp = Itf_Desc->bNumEndpoints	;
-	for(ep_ix=0;ep_ix<CntEp;ep_ix++){
-	  Ep_Desc = &pphost->device_prop.Ep_Desc[if_ix][ep_ix]		;
-	  if((Ep_Desc->bmAttributes & 3) != EP_TYPE_BULK) continue	;// need BULK
-	  if(Ep_Desc->bEndpointAddress & 0x80) ep_in = Ep_Desc		; else ep_out = Ep_Desc	;	  
-	  if(ep_in && ep_out) break	;
-	}	
-	if(ep_in && ep_out) break	;	  
-  }
-  
-  if(ep_in && ep_out){
-    MSC_Machine.isCDC = 1	;
-    MSC_Machine.MSBulkInEp      = ep_in ->bEndpointAddress		;
-    MSC_Machine.MSBulkInEpSize  = ep_in ->wMaxPacketSize		;
-    MSC_Machine.MSBulkOutEp     = ep_out->bEndpointAddress		;
-    MSC_Machine.MSBulkOutEpSize = ep_out->wMaxPacketSize		;
-
-    MSC_Machine.hc_num_out = USBH_Alloc_Channel(pdev,MSC_Machine.MSBulkOutEp);
-    MSC_Machine.hc_num_in  = USBH_Alloc_Channel(pdev,MSC_Machine.MSBulkInEp);  
-    
-    /* Open the new channels */
-    USBH_Open_Channel  (pdev,
-                        MSC_Machine.hc_num_out,
-                        pphost->device_prop.address,
-                        pphost->device_prop.speed,
-                        EP_TYPE_BULK,
-                        MSC_Machine.MSBulkOutEpSize)	;
-    
-    USBH_Open_Channel  (pdev,
-                        MSC_Machine.hc_num_in,
-                        pphost->device_prop.address,
-                        pphost->device_prop.speed,
-                        EP_TYPE_BULK,
-                        MSC_Machine.MSBulkInEpSize)		;
-    Status = USBH_OK	;
-	
-	Log.d("InterfaceInit\n   EpIn=0x%02X, EpOut=0x%02X\n",ep_in->bEndpointAddress,ep_out->bEndpointAddress);
-  }  
-  return Status ; 
-}
-
 
 
 /**
@@ -226,23 +168,66 @@ USBH_Status	USBH_MY_InterfaceInit(USB_OTG_CORE_HANDLE *pdev,void *phost,uint8_t 
   * @param  hdev: Selected device property
   * @retval USBH_Status : Status of class request handled.
   */
-static USBH_Status USBH_MSC_InterfaceInit(USB_OTG_CORE_HANDLE *pdev,void *phost)
+static USBH_Status USBH_MSC_InterfaceInit ( USB_OTG_CORE_HANDLE *pdev, 
+                                        void *phost)
 {	 
   USBH_HOST *pphost = phost;
-  USBH_Status	Status = USBH_FAIL	;
   
-  if(Status != USBH_OK){Status = USBH_MY_InterfaceInit(pdev,phost,MSC_CLASS,MSC_PROTOCOL)	;
-						if(Status == USBH_OK) MSC_Machine.isCDC = 0	;}
+  if((pphost->device_prop.Itf_Desc[0].bInterfaceClass == MSC_CLASS) && \
+     (pphost->device_prop.Itf_Desc[0].bInterfaceProtocol == MSC_PROTOCOL))
+  {
+    if(pphost->device_prop.Ep_Desc[0][0].bEndpointAddress & 0x80)
+    {
+      MSC_Machine.MSBulkInEp = (pphost->device_prop.Ep_Desc[0][0].bEndpointAddress);
+      MSC_Machine.MSBulkInEpSize  = pphost->device_prop.Ep_Desc[0][0].wMaxPacketSize;
+    }
+    else
+    {
+      MSC_Machine.MSBulkOutEp = (pphost->device_prop.Ep_Desc[0][0].bEndpointAddress);
+      MSC_Machine.MSBulkOutEpSize  = pphost->device_prop.Ep_Desc[0] [0].wMaxPacketSize;      
+    }
+    
+    if(pphost->device_prop.Ep_Desc[0][1].bEndpointAddress & 0x80)
+    {
+      MSC_Machine.MSBulkInEp = (pphost->device_prop.Ep_Desc[0][1].bEndpointAddress);
+      MSC_Machine.MSBulkInEpSize  = pphost->device_prop.Ep_Desc[0][1].wMaxPacketSize;      
+    }
+    else
+    {
+      MSC_Machine.MSBulkOutEp = (pphost->device_prop.Ep_Desc[0][1].bEndpointAddress);
+      MSC_Machine.MSBulkOutEpSize  = pphost->device_prop.Ep_Desc[0][1].wMaxPacketSize;      
+    }
+    
+    MSC_Machine.hc_num_out = USBH_Alloc_Channel(pdev, 
+                                                MSC_Machine.MSBulkOutEp);
+    MSC_Machine.hc_num_in = USBH_Alloc_Channel(pdev,
+                                                MSC_Machine.MSBulkInEp);  
+    
+    /* Open the new channels */
+    USBH_Open_Channel  (pdev,
+                        MSC_Machine.hc_num_out,
+                        pphost->device_prop.address,
+                        pphost->device_prop.speed,
+                        EP_TYPE_BULK,
+                        MSC_Machine.MSBulkOutEpSize);  
+    
+    USBH_Open_Channel  (pdev,
+                        MSC_Machine.hc_num_in,
+                        pphost->device_prop.address,
+                        pphost->device_prop.speed,
+                        EP_TYPE_BULK,
+                        MSC_Machine.MSBulkInEpSize);    
+    
+  }
   
-  if(Status != USBH_OK){Status = USBH_MY_InterfaceInit(pdev,phost,CDC_CLASS1,CDC_PROTOCOL1)	;
-						if(Status == USBH_OK) MSC_Machine.isCDC = 1	;}
-  
-  if(Status != USBH_OK){
+  else
+  {
     pphost->usr_cb->DeviceNotSupported(); 
   }
+  
   return USBH_OK ;
+ 
 }
-
 
 
 /**
@@ -289,11 +274,6 @@ static USBH_Status USBH_MSC_ClassRequest(USB_OTG_CORE_HANDLE *pdev ,
 }
 
 
-static	char	InBuff[200]	;
-static	char	OutBuff[] = "ATi\r\n"	;
-
-
-
 /**
   * @brief  USBH_MSC_Handle 
   *         MSC state machine handler 
@@ -312,11 +292,7 @@ static USBH_Status USBH_MSC_Handle(USB_OTG_CORE_HANDLE *pdev ,
   uint8_t appliStatus = 0;
   
   static uint8_t maxLunExceed = FALSE;
-
-  uint8_t 			xferDirection, index;
-  static uint32_t 	remainingDataLength,datalen;
-  static uint8_t 	*datapointer , *datapointer_prev;
-  URB_STATE 		URB_State	;
+  
     
   if(HCD_IsDeviceConnected(pdev))
   {   
@@ -324,61 +300,8 @@ static USBH_Status USBH_MSC_Handle(USB_OTG_CORE_HANDLE *pdev ,
     {
     case USBH_MSC_BOT_INIT_STATE:
       USBH_MSC_Init(pdev);
-	  
-	  MY_ModeSwitch(pdev,phost)		;//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	  
-      if(MSC_Machine.isCDC == 0)  USBH_MSC_BOTXferParam.MSCState = USBH_MSC_BOT_RESET	;  
-	  else                        USBH_MSC_BOTXferParam.MSCState = USBH_CDC_INIT		;
+      USBH_MSC_BOTXferParam.MSCState = USBH_MSC_BOT_RESET;  
       break;
-
-	case	USBH_CDC_INIT:
-//		status = USBH_CDC_Reset(pdev, phost);
-//		if(status == USBH_OK || status == USBH_NOT_SUPPORTED)
-		  USBH_MSC_BOTXferParam.MSCState = USBH_CDC_SEND_DATA	;
-	break	;
-
-	case	USBH_CDC_SEND_DATA:
-        status = USBH_OK;
-        datapointer = (uint8_t*)OutBuff	;
-		datalen = strlen(OutBuff)		;
-		status = USBH_BulkSendData (pdev,datapointer,datalen, MSC_Machine.hc_num_out);
-		if(status == USBH_OK)
-		  USBH_MSC_BOTXferParam.MSCState = USBH_CDC_WAIT_SEND	;
-	
-	break	;
-	
-	case	USBH_CDC_WAIT_SEND:
-        status = USBH_OK;
-		URB_State = HCD_GetURB_State(pdev , MSC_Machine.hc_num_out)	;
-        if(URB_State == URB_DONE){		
-		  datalen = HCD_GetXferCnt(pdev,MSC_Machine.hc_num_out)			;
-		  Log.d("SEND %d bytes\n",datalen)	;
-          USBH_MSC_BOTXferParam.MSCState = USBH_CDC_GET_DATA			;
-		}	
-	break	;
-
-	case	USBH_CDC_GET_DATA:
-        status = USBH_OK;
-        datapointer = (uint8_t*)InBuff	;
-		status = USBH_BulkReceiveData (pdev,datapointer,MSC_Machine.MSBulkInEpSize, MSC_Machine.hc_num_in);
-		USBH_MSC_BOTXferParam.MSCState = USBH_CDC_POLL	;
-	break	;
-
-	case	USBH_CDC_POLL:
-        status = USBH_OK;
-		URB_State = HCD_GetURB_State(pdev , MSC_Machine.hc_num_in)	;
-        if(URB_State == URB_DONE){
-        // you stuff
-//          pphost->usr_cb->UserApplication(Buffer);
-		  datalen = HCD_GetXferCnt(pdev,MSC_Machine.hc_num_in)		;
-		  InBuff[datalen] = 0	;
-		  Log.d("RECEIVE %d bytes: %s \n",datalen,InBuff)			;
-
-          USBH_MSC_BOTXferParam.MSCState = USBH_CDC_FINISH;
-        }	
-	break	;
-	
-
       
     case USBH_MSC_BOT_RESET:   
       /* Issue BOT RESET request */
@@ -538,18 +461,6 @@ static USBH_Status USBH_MSC_Handle(USB_OTG_CORE_HANDLE *pdev ,
 }
 
 
-static USBH_Status USBH_CDC_Reset(USB_OTG_CORE_HANDLE *pdev,USBH_HOST *phost)
-{
-  phost->Control.setup.b.bmRequestType = USB_REQ_TYPE_VENDOR | USB_REQ_RECIPIENT_INTERFACE;  
-  phost->Control.setup.b.bRequest = 0xA3;
-  phost->Control.setup.b.wValue.w = 0;
-  phost->Control.setup.b.wIndex.w = 2;
-  phost->Control.setup.b.wLength.w = 1;           
-  
-  return USBH_CtlReq(pdev, phost, 0 , 0 ); 
-}
-
-
 
 /**
   * @brief  USBH_MSC_BOTReset
@@ -635,56 +546,6 @@ void USBH_MSC_ErrorHandle(uint8_t status)
 /**
   * @}
   */ 
-
-//------------------------------------------------
-uint8_t		hex2nbl(char chHex)
-{uint8_t	rslt = 	chHex <  '0' ? 0 : chHex <= '9'	? chHex-'0'		: 
-					chHex <  'A' ? 0 : chHex <= 'F'	? chHex-'A'+10	: 
-					chHex <  'a' ? 0 : chHex <= 'a'	? chHex-'a'+10	: 0	;
- return		rslt	;}
-//------------------------------------------------
-int	hexstr2bin(uint8_t* buf,char* strMsg)
-{int	ix = 0	;
-
- for(ix=0;buf && strMsg;ix+=2){
-   if(!strMsg[ix] || !strMsg[ix+1]) break	;
-   buf[ix>>1] = (hex2nbl(strMsg[ix])<<4) | hex2nbl(strMsg[ix+1])			;
- }
- 
- if(ix) ix = (ix>>1)	;
- return	ix				;}
-//------------------------------------------------
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-char		strMsg[] = "55534243123456780000000000000011062000000100000000000000000000";// MAGIC!!!!
-uint8_t		buffMsg[100]	;
-//------------------------------------------------
-USBH_Status	MY_ModeSwitch(USB_OTG_CORE_HANDLE *pdev,void *phost)
-{
- int Len = 0,Cnt=0					;
- USBH_Status Status = USBH_OK		;
- URB_STATE	UrbState				;
- USBH_HOST *pphost = phost			;
- 
- USBH_DevDesc_TypeDef *hs = &pphost->device_prop.Dev_Desc;
- 
- if(hs->idVendor == 0x12D1 && hs->idProduct == 0x155B){
-   Len = hexstr2bin(buffMsg,strMsg)	;// MAGIC
-
-   Status = USBH_BulkSendData(pdev,buffMsg,Len,MSC_Machine.hc_num_out);
- 
-   if(Status == USBH_OK){
-     Log.d("==>")	;
-     for(Cnt=0;UrbState != URB_DONE;Cnt++){
-       UrbState = HCD_GetURB_State(pdev ,MSC_Machine.hc_num_out);}
-	 
-     Log.d("ModeSwitch USBH_BulkSendData done %d\n",Cnt);
-   } 
-   else Log.d("ModeSwitch USBH_BulkSendData failed %d\n",Cnt);
- }
- return Status						;}
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//------------------------------------------------
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 /**
   * @}

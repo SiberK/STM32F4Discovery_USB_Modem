@@ -56,6 +56,8 @@
 #define HID_CLASS                         0x03
 #define MSC_PROTOCOL                      0x50
 #define CBI_PROTOCOL                      0x01
+#define	CDC_CLASS							0xFF
+#define	CDC_PROTOCOL						0x61
 
 
 #define USBH_MAX_ERROR_COUNT                            2
