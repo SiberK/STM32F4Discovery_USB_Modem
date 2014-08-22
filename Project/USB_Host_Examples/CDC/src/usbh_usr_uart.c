@@ -86,6 +86,8 @@ FATFS fatfs;
 FIL file;
 uint8_t Image_Buf[IMAGE_BUFFER_SIZE];
 uint8_t line_idx = 0;   
+extern	Led_TypeDef	LEDind			;
+
 
 /*  Points to the DEVICE_PROP structure of current device */
 /*  The purpose of this register is to speed up the execution */
@@ -172,7 +174,10 @@ void USBH_USR_Init(void)
   {
     startup = 1;
     /* Configure the LEDs */
+    STM_EVAL_LEDInit(LED3); 
     STM_EVAL_LEDInit(LED4); 
+    STM_EVAL_LEDInit(LED5); 
+    STM_EVAL_LEDInit(LED6); 
 
 		/* init the Debug COM */
 //    STM32f4_Discovery_Debug_Init();
@@ -272,7 +277,8 @@ void USBH_USR_Device_DescAvailable(void *DeviceDesc)
 			 "USB v%X.%02X\n" ,
 			 hs->idVendor,hs->idProduct,
 			 hs->bcdUSB>>8,hs->bcdUSB&0xFF);
-  
+  if(hs->idProduct == 0x155B) LEDind = LED5	;
+  if(hs->idProduct == 0x1506) LEDind = LED6	;
 }
 
 /**
@@ -410,9 +416,8 @@ USBH_USR_Status USBH_USR_UserInput(void)
   USBH_USR_Status usbh_usr_status = USBH_USR_NO_RESP	;
   
 //  /*USER1 B3 is in polling mode to detect user action */
-//  if(Get_Peek_Key() != EOF) 
   /*Key B3 is in polling mode to detect user action */
-  if(STM_EVAL_PBGetState(BUTTON_USER) == SET){
+  if(1){//STM_EVAL_PBGetState(BUTTON_USER) == SET){
     usbh_usr_status = USBH_USR_RESP_OK			;} 
   return usbh_usr_status;
 }
@@ -616,7 +621,7 @@ static void Toggle_Leds(void)
   static uint32_t i;
   if (i++ == 0x10000)
   {
-    STM_EVAL_LEDToggle(LED4);
+    STM_EVAL_LEDToggle(LEDind);
     i = 0;
   }  
 }

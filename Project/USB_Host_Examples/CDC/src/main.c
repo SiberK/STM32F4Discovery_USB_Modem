@@ -117,6 +117,8 @@ __ALIGN_BEGIN USBH_HOST                USB_Host __ALIGN_END;
 * @{
 */ 
 
+Led_TypeDef	LEDind = LED3	;
+
 /**
 * @brief  Main routine for MSC class application
 * @param  None
@@ -152,7 +154,7 @@ int main(void)
     USBH_Process(&USB_OTG_Core, &USB_Host);
     
     if (i++ >= 0x10000) {
-      STM_EVAL_LEDToggle(LED4);
+      STM_EVAL_LEDToggle(LEDind);
 
 #ifdef USE_USB_OTG_HS 
       /* check the ID pin */

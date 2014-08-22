@@ -155,12 +155,38 @@ void USBH_MSC_ErrorHandle(uint8_t status);
 /** @defgroup USBH_MSC_CORE_Private_Functions
   * @{
   */ 
+extern USBH_Status	USBH_MY_InterfaceInit(USB_OTG_CORE_HANDLE *pdev,void *phost,uint8_t InterfaceClass,uint8_t InterfaceProtocol);
+
 #define		CDC_CLASS1		0xFF
 #define		CDC_CLASS2		0x00
 #define		CDC_PROTOCOL1	0x61
 #define		CDC_PROTOCOL2	0x63
 #define		CDC_PROTOCOL3	0x62
 
+/**
+  * @brief  USBH_MSC_InterfaceInit 
+  *         Interface initialization for MSC class.
+  * @param  pdev: Selected device
+  * @param  hdev: Selected device property
+  * @retval USBH_Status : Status of class request handled.
+  */
+static USBH_Status USBH_MSC_InterfaceInit(USB_OTG_CORE_HANDLE *pdev,void *phost)
+{	 
+  USBH_HOST *pphost = phost;
+  USBH_Status	Status = USBH_FAIL	;
+  
+  if(Status != USBH_OK){Status = USBH_MY_InterfaceInit(pdev,phost,MSC_CLASS,MSC_PROTOCOL)	;
+						if(Status == USBH_OK) MSC_Machine.isCDC = 0	;}
+  
+  if(Status != USBH_OK){Status = USBH_MY_InterfaceInit(pdev,phost,CDC_CLASS1,CDC_PROTOCOL3)	;
+						if(Status == USBH_OK) MSC_Machine.isCDC = 1	;}
+  
+  if(Status != USBH_OK){
+    pphost->usr_cb->DeviceNotSupported(); 
+  }
+  return USBH_OK ;
+}
+//------------------------------------------------------------------------------------
 USBH_Status	USBH_MY_InterfaceInit(USB_OTG_CORE_HANDLE *pdev,void *phost,uint8_t InterfaceClass,uint8_t InterfaceProtocol)
 {
   USBH_Status	Status = USBH_FAIL			;
@@ -216,33 +242,7 @@ USBH_Status	USBH_MY_InterfaceInit(USB_OTG_CORE_HANDLE *pdev,void *phost,uint8_t 
   }  
   return Status ; 
 }
-
-
-
-/**
-  * @brief  USBH_MSC_InterfaceInit 
-  *         Interface initialization for MSC class.
-  * @param  pdev: Selected device
-  * @param  hdev: Selected device property
-  * @retval USBH_Status : Status of class request handled.
-  */
-static USBH_Status USBH_MSC_InterfaceInit(USB_OTG_CORE_HANDLE *pdev,void *phost)
-{	 
-  USBH_HOST *pphost = phost;
-  USBH_Status	Status = USBH_FAIL	;
-  
-  if(Status != USBH_OK){Status = USBH_MY_InterfaceInit(pdev,phost,MSC_CLASS,MSC_PROTOCOL)	;
-						if(Status == USBH_OK) MSC_Machine.isCDC = 0	;}
-  
-  if(Status != USBH_OK){Status = USBH_MY_InterfaceInit(pdev,phost,CDC_CLASS1,CDC_PROTOCOL1)	;
-						if(Status == USBH_OK) MSC_Machine.isCDC = 1	;}
-  
-  if(Status != USBH_OK){
-    pphost->usr_cb->DeviceNotSupported(); 
-  }
-  return USBH_OK ;
-}
-
+//------------------------------------------------------------------------------------
 
 
 /**
@@ -342,6 +342,7 @@ static USBH_Status USBH_MSC_Handle(USB_OTG_CORE_HANDLE *pdev ,
         datapointer = (uint8_t*)OutBuff	;
 		datalen = strlen(OutBuff)		;
 		status = USBH_BulkSendData (pdev,datapointer,datalen, MSC_Machine.hc_num_out);
+		USBH_MSC_BOTXferParam.MSCStateBkp = USBH_MSC_BOTXferParam.MSCState			;
 		if(status == USBH_OK)
 		  USBH_MSC_BOTXferParam.MSCState = USBH_CDC_WAIT_SEND	;
 	
@@ -349,19 +350,32 @@ static USBH_Status USBH_MSC_Handle(USB_OTG_CORE_HANDLE *pdev ,
 	
 	case	USBH_CDC_WAIT_SEND:
         status = USBH_OK;
-		URB_State = HCD_GetURB_State(pdev , MSC_Machine.hc_num_out)	;
+		URB_State = HCD_GetURB_State(pdev , MSC_Machine.hc_num_out)		;
         if(URB_State == URB_DONE){		
 		  datalen = HCD_GetXferCnt(pdev,MSC_Machine.hc_num_out)			;
-		  Log.d("SEND %d bytes\n",datalen)	;
+		  Log.d("SEND %d bytes\n",datalen)								;
           USBH_MSC_BOTXferParam.MSCState = USBH_CDC_GET_DATA			;
 		}	
 	break	;
 
 	case	USBH_CDC_GET_DATA:
-        status = USBH_OK;
         datapointer = (uint8_t*)InBuff	;
-		status = USBH_BulkReceiveData (pdev,datapointer,MSC_Machine.MSBulkInEpSize, MSC_Machine.hc_num_in);
-		USBH_MSC_BOTXferParam.MSCState = USBH_CDC_POLL	;
+		URB_State = HCD_GetURB_State(pdev , MSC_Machine.hc_num_in)		;
+		
+		if(URB_State == URB_DONE){
+		  datalen = HCD_GetXferCnt(pdev,MSC_Machine.hc_num_in)			;
+		  if(datalen > 0){
+		    InBuff[datalen] = 0	;
+		    Log.d("RECEIVE %d bytes: %s \n",datalen,InBuff)				;}
+		}
+		
+		if(URB_State == URB_DONE || USBH_MSC_BOTXferParam.MSCStateBkp != USBH_CDC_GET_DATA){
+		  USBH_MSC_BOTXferParam.MSCStateBkp = USBH_MSC_BOTXferParam.MSCState	;
+		  status = USBH_BulkReceiveData (pdev,datapointer,MSC_Machine.MSBulkInEpSize, MSC_Machine.hc_num_in);
+		}
+		else if(URB_State == URB_IDLE){
+		  USBH_MSC_BOTXferParam.MSCState = USBH_CDC_GET_DATA			;
+		}
 	break	;
 
 	case	USBH_CDC_POLL:
@@ -373,7 +387,9 @@ static USBH_Status USBH_MSC_Handle(USB_OTG_CORE_HANDLE *pdev ,
 		  datalen = HCD_GetXferCnt(pdev,MSC_Machine.hc_num_in)		;
 		  InBuff[datalen] = 0	;
 		  Log.d("RECEIVE %d bytes: %s \n",datalen,InBuff)			;
-
+		  status = USBH_BulkReceiveData (pdev,datapointer,MSC_Machine.MSBulkInEpSize, MSC_Machine.hc_num_in);
+		}
+		else{
           USBH_MSC_BOTXferParam.MSCState = USBH_CDC_FINISH;
         }	
 	break	;
