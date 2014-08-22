@@ -261,6 +261,10 @@ typedef struct _Host_TypeDef
 /** @defgroup USBH_CORE_Exported_FunctionsPrototype
   * @{
   */ 
+#ifdef __cplusplus
+ extern "C"{
+#endif
+
 void USBH_Init(USB_OTG_CORE_HANDLE *pdev,
                USB_OTG_CORE_ID_TypeDef coreID, 
                USBH_HOST *phost,                    
@@ -274,6 +278,9 @@ void USBH_Process(USB_OTG_CORE_HANDLE *pdev ,
 void USBH_ErrorHandle(USBH_HOST *phost, 
                       USBH_Status errType);
 
+#ifdef __cplusplus
+ } 
+#endif
 /**
   * @}
   */ 

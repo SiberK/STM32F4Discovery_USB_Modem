@@ -237,6 +237,9 @@ void	InitUSART(void)
 }
 
 //--------------------------------------------------------------
+#ifdef __cplusplus
+ extern "C" 
+#endif
 int fputc(int ch, FILE *f)
 {
 #define ITM_Port8(n) (*((volatile unsigned char *)(0xE0000000+4*n)))

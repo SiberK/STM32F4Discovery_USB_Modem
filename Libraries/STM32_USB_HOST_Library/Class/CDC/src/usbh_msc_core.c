@@ -123,7 +123,6 @@ static void USBH_MSC_InterfaceDeInit  (USB_OTG_CORE_HANDLE *pdev ,void *phost);
 static USBH_Status USBH_MSC_Handle(USB_OTG_CORE_HANDLE *pdev ,void *phost);
 static USBH_Status USBH_MSC_ClassRequest(USB_OTG_CORE_HANDLE *pdev,void *phost);
 static USBH_Status USBH_MSC_BOTReset(USB_OTG_CORE_HANDLE *pdev,USBH_HOST *phost);
-static USBH_Status USBH_CDC_Reset(USB_OTG_CORE_HANDLE *pdev,USBH_HOST *phost);
 static USBH_Status USBH_MSC_GETMaxLUN(USB_OTG_CORE_HANDLE *pdev,USBH_HOST *phost);
 							   
 USBH_Status	MY_ModeSwitch(USB_OTG_CORE_HANDLE *pdev,void *phost);
@@ -191,7 +190,7 @@ USBH_Status	USBH_MY_InterfaceInit(USB_OTG_CORE_HANDLE *pdev,void *phost,uint8_t 
 {
   USBH_Status	Status = USBH_FAIL			;
   USBH_HOST 	*pphost = phost				;
-  int			if_ix = 1,ep_ix=0,CntEp,ie_ix		;
+  int			if_ix = 1,ep_ix=0,CntEp		;
   
   USBH_InterfaceDesc_TypeDef        *Itf_Desc	;
   USBH_EpDesc_TypeDef               *Ep_Desc,*ep_in=0,*ep_out=0		;
@@ -313,9 +312,9 @@ static USBH_Status USBH_MSC_Handle(USB_OTG_CORE_HANDLE *pdev ,
   
   static uint8_t maxLunExceed = FALSE;
 
-  uint8_t 			xferDirection, index;
-  static uint32_t 	remainingDataLength,datalen;
-  static uint8_t 	*datapointer , *datapointer_prev;
+//  uint8_t 			xferDirection, index;
+  static uint32_t 	datalen;//remainingDataLength,;
+  static uint8_t 	*datapointer;// , *datapointer_prev;
   URB_STATE 		URB_State	;
     
   if(HCD_IsDeviceConnected(pdev))
@@ -332,8 +331,6 @@ static USBH_Status USBH_MSC_Handle(USB_OTG_CORE_HANDLE *pdev ,
       break;
 
 	case	USBH_CDC_INIT:
-//		status = USBH_CDC_Reset(pdev, phost);
-//		if(status == USBH_OK || status == USBH_NOT_SUPPORTED)
 		  USBH_MSC_BOTXferParam.MSCState = USBH_CDC_SEND_DATA	;
 	break	;
 
@@ -554,19 +551,6 @@ static USBH_Status USBH_MSC_Handle(USB_OTG_CORE_HANDLE *pdev ,
 }
 
 
-static USBH_Status USBH_CDC_Reset(USB_OTG_CORE_HANDLE *pdev,USBH_HOST *phost)
-{
-  phost->Control.setup.b.bmRequestType = USB_REQ_TYPE_VENDOR | USB_REQ_RECIPIENT_INTERFACE;  
-  phost->Control.setup.b.bRequest = 0xA3;
-  phost->Control.setup.b.wValue.w = 0;
-  phost->Control.setup.b.wIndex.w = 2;
-  phost->Control.setup.b.wLength.w = 1;           
-  
-  return USBH_CtlReq(pdev, phost, 0 , 0 ); 
-}
-
-
-
 /**
   * @brief  USBH_MSC_BOTReset
   *         This request is used to reset the mass storage device and its 
@@ -671,7 +655,7 @@ int	hexstr2bin(uint8_t* buf,char* strMsg)
  return	ix				;}
 //------------------------------------------------
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-char		strMsg[] = "55534243123456780000000000000011062000000100000000000000000000";// MAGIC!!!!
+char		strMsg_HUAWEI_E171[] = "55534243123456780000000000000011062000000100000000000000000000";// MAGIC!!!!
 uint8_t		buffMsg[100]	;
 //------------------------------------------------
 USBH_Status	MY_ModeSwitch(USB_OTG_CORE_HANDLE *pdev,void *phost)
@@ -684,7 +668,7 @@ USBH_Status	MY_ModeSwitch(USB_OTG_CORE_HANDLE *pdev,void *phost)
  USBH_DevDesc_TypeDef *hs = &pphost->device_prop.Dev_Desc;
  
  if(hs->idVendor == 0x12D1 && hs->idProduct == 0x155B){
-   Len = hexstr2bin(buffMsg,strMsg)	;// MAGIC
+   Len = hexstr2bin(buffMsg,strMsg_HUAWEI_E171)	;// MAGIC
 
    Status = USBH_BulkSendData(pdev,buffMsg,Len,MSC_Machine.hc_num_out);
  

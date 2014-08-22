@@ -223,6 +223,7 @@ void USBH_USR_DeviceDisconnected (void)
 {
   /* Set default screen color*/
   Log.d((void *)MSG_DEV_DISCONNECTED);
+  STM_EVAL_LEDOff(LED5)	; STM_EVAL_LEDOff(LED6)	; LEDind = LED3	;
 }
 /**
 * @brief  USBH_USR_ResetUSBDevice 
@@ -277,8 +278,8 @@ void USBH_USR_Device_DescAvailable(void *DeviceDesc)
 			 "USB v%X.%02X\n" ,
 			 hs->idVendor,hs->idProduct,
 			 hs->bcdUSB>>8,hs->bcdUSB&0xFF);
-  if(hs->idProduct == 0x155B) LEDind = LED5	;
-  if(hs->idProduct == 0x1506) LEDind = LED6	;
+  if(hs->idProduct == 0x155B){ STM_EVAL_LEDOff(LED3)	; STM_EVAL_LEDOff(LED6)	; LEDind = LED5	;}
+  if(hs->idProduct == 0x1506){ STM_EVAL_LEDOff(LED3)	; STM_EVAL_LEDOff(LED6)	; LEDind = LED6	;}
 }
 
 /**

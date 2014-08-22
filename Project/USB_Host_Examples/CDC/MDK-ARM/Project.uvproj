@@ -403,11 +403,6 @@
               <FilePath>..\src\usb_bsp.c</FilePath>
             </File>
             <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\main.c</FilePath>
-            </File>
-            <File>
               <FileName>usbh_usr_lcd.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\usbh_usr_lcd.c</FilePath>
@@ -421,6 +416,21 @@
               <FileName>Log.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\Log.c</FilePath>
+            </File>
+            <File>
+              <FileName>FiFo.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\src\MDM_SMS\FiFo.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>usart_GSM.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\src\MDM_SMS\usart_GSM.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>main.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\src\main.cpp</FilePath>
             </File>
           </Files>
         </Group>
@@ -1141,7 +1151,7 @@
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER,STM32F4XX,USE_USB_OTG_FS,USE_ULPI_PHY</Define>
               <Undefine></Undefine>
-              <IncludePath>..\inc;..\..\..\..\Libraries\CMSIS\Device\ST\STM32F4xx\Include;..\..\..\..\Libraries\STM32F4xx_StdPeriph_Driver\inc;..\..\..\..\Libraries\STM32_USB_OTG_Driver\inc;..\..\..\..\Libraries\STM32_USB_HOST_Library\Core\inc;..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\CDC\inc;..\..\..\..\Utilities\STM32F4-Discovery;..\..\..\..\Utilities\fat_fs\inc</IncludePath>
+              <IncludePath>..\inc;..\..\..\..\Libraries\CMSIS\Device\ST\STM32F4xx\Include;..\..\..\..\Libraries\STM32F4xx_StdPeriph_Driver\inc;..\..\..\..\Libraries\STM32_USB_OTG_Driver\inc;..\..\..\..\Libraries\STM32_USB_HOST_Library\Core\inc;..\..\..\..\Libraries\STM32_USB_HOST_Library\Class\CDC\inc;..\..\..\..\Utilities\STM32F4-Discovery;..\..\..\..\Utilities\fat_fs\inc;..\src\MDM_SMS</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1191,11 +1201,6 @@
               <FileName>usb_bsp.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\usb_bsp.c</FilePath>
-            </File>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\main.c</FilePath>
             </File>
             <File>
               <FileName>usbh_usr_lcd.c</FileName>
@@ -1251,6 +1256,21 @@
               <FileName>Log.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\Log.c</FilePath>
+            </File>
+            <File>
+              <FileName>FiFo.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\src\MDM_SMS\FiFo.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>usart_GSM.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\src\MDM_SMS\usart_GSM.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>main.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\src\main.cpp</FilePath>
             </File>
           </Files>
         </Group>
