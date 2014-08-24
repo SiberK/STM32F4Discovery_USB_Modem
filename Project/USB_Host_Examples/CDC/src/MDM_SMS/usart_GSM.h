@@ -5,11 +5,13 @@
 #include		<stdint.h>
 #include		"EventGUI.h"
 #include		"FiFo.h"
+#include		"usbh_msc_core.h"
 //#include		"Store.h"
 //*******************************************************************
 typedef char*		(*TGetString)(char*,int)		;
 typedef	uint32_t	(*TGetUInt32Value)(void)		;
 typedef	void		(*TSetUInt32Value)(uint32_t)	;
+typedef	USBH_Status	(*TWriteBuff)(void* Data,int Len)		;
 //*******************************************************************
 #pragma	pack(push,1)
 //-----------------------------------------------------
@@ -101,6 +103,9 @@ public:
 // TGetUInt32Value		FnGetPswGSM							;
 // TSetUInt32Value		FnSetPswGSM							;
  TGetString				FnGetInfSMS							;
+ TWriteBuff				FnWriteBuff							;
+ static	int				FnListenData(void* Buf,int Len)		;
+ static void			FnMdmInit(void)						;
 private:
  uint16_t				OnEventGSM(void)					;
  uint16_t				Parse(char* str,int cnt)			;

@@ -637,23 +637,5 @@ void USBH_USR_DeInit(void)
 {
   USBH_USR_ApplicationState = USH_USR_FS_INIT;
 }
-
-
-/**
-* @}
-*/ 
-
-/**
-* @}
-*/ 
-
-/**
-* @}
-*/
-
-/**
-* @}
-*/
-
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
 

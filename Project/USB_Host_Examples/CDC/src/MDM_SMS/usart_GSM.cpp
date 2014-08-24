@@ -6,21 +6,21 @@
 #include		"usart_GSM.h"
 //***************************************************************
 //***************************************************************
-#define		USART_GSM			USART2
+//#define		USART_GSM			USART2
 #define		LenBF				200
 
-// Enable Vin
-#define		VEN_PORT			GPIOC
-#define		VEN_PIN				GPIO_Pin_7
-// Power ON
-#define		PWR_ON_PORT			GPIOC
-#define		PWR_ON_PIN			GPIO_Pin_6
-// STATE flag
-#define		STT_PORT			GPIOB
-#define		STT_PIN				GPIO_Pin_10
-// NETLIGHT flag
-#define		NTL_PORT			GPIOB
-#define		NTL_PIN				GPIO_Pin_11
+//// Enable Vin
+//#define		VEN_PORT			GPIOC
+//#define		VEN_PIN				GPIO_Pin_7
+//// Power ON
+//#define		PWR_ON_PORT			GPIOC
+//#define		PWR_ON_PIN			GPIO_Pin_6
+//// STATE flag
+//#define		STT_PORT			GPIOB
+//#define		STT_PIN				GPIO_Pin_10
+//// NETLIGHT flag
+//#define		NTL_PORT			GPIOB
+//#define		NTL_PIN				GPIO_Pin_11
 
 #define		TIM_PULSE_PWR_ON	1200
 #define		TIM_WAIT_PWR_ON		800
@@ -40,6 +40,7 @@ static	char	SmsInBuf[LenBF]						;
 static	char	SmsOutBuf[LenBF]					;
 static	char	StrDbg[LenBF], *strDbg = 0			;
 static	char	StrStt[LenBF], *strStt = 0			;
+static	char	StrMasterNmbr[40]					;
 const	char*	strMsg = 0							;
 //static	char	GsmMsg[80]						;
 //***************************************************************
@@ -186,7 +187,7 @@ EVENT_TYPE	TUsartGSM::OnEvent(TEvent* Event)
  
 	// если произошло событие по которому необходимо отправить инфоСМС, то
  case evEventSMS :  strncpy(PhoneNmbrSMS,GetMasterNmbr(),16)					;// отправить инф. СМС на MasterNmbr
-					if(!StrCmp(PhoneNmbrSMS,strValidNmbr)){		 // если он валидный
+					if(!StrCmp(PhoneNmbrSMS,strValidNmbr)){		 				 // если он валидный
 					  NeedSendSMS = 1 ; timGuardSMS = 0							;}
 					else{ *PhoneNmbrSMS = 0	; SetMasterNmbr(PhoneNmbrSMS)		;}// иначе, стереть его
 		break	;
@@ -245,7 +246,7 @@ int		TUsartGSM::Operate(int Msg)
  if(State == StateTrg){
    SttPhase = 1		;
    switch((int)StateTrg){
-      case sttNone			: StateTrg = sttPwrON			; break	;
+      case sttNone			: StateTrg = sttIDLE			; break	;
 	  case sttPwrON			: StateTrg = sttINIT			; break	;
 	  case sttINIT			: StateTrg = sttIDLE			; break	;
 	  case sttRD_SMS		: StateTrg = sttDEL_SMS			; break	;// удалить 1 СМС после прочтения
@@ -260,7 +261,7 @@ int		TUsartGSM::Operate(int Msg)
  }
  else{
    switch((int)StateTrg){
-     case sttPwrON 			: result = Operate_PwrON(Msg)		; break	;
+//     case sttPwrON 			: result = Operate_PwrON(Msg)		; break	;
      case sttINIT 			: result = Operate_INIT(Msg)		; break	;
      case sttREQ_CNT_SMS	: result = Operate_REQ_CNT_SMS(Msg)	; break	;
      case sttRD_SMS			: result = Operate_RD_SMS(Msg)		; break	;
@@ -289,17 +290,17 @@ int		TUsartGSM::Operate_IDLE(int Msg)
  
  return result				;}
 //***************************************************************
-int		TUsartGSM::Operate_PwrON(int Msg)
-{int	result = TIM_WAIT_PWR_ON	;
+//int		TUsartGSM::Operate_PwrON(int Msg)
+//{int	result = TIM_WAIT_PWR_ON	;
 
- switch(SttPhase){
-   case	1:	VEN_PIN_SET()					; break	;// Vbat ON
-   case 2:  PWR_ON_PIN_SET()				; break	;// PWRKEY set LOW
-   case 3:  PWR_ON_PIN_RST()				; break	;// PWRKEY set HIGH
-   case 4:	State = StateTrg				; break	;
-   default: SttPhase = 0	; result = -1	;
- }
- return result	;}
+// switch(SttPhase){
+//   case	1:	VEN_PIN_SET()					; break	;// Vbat ON
+//   case 2:  PWR_ON_PIN_SET()				; break	;// PWRKEY set LOW
+//   case 3:  PWR_ON_PIN_RST()				; break	;// PWRKEY set HIGH
+//   case 4:	State = StateTrg				; break	;
+//   default: SttPhase = 0	; result = -1	;
+// }
+// return result	;}
 //***************************************************************
 int		TUsartGSM::Operate_INIT(int Msg)
 {int	result = 500;
@@ -426,11 +427,12 @@ int		TUsartGSM::Operate_DEL_ALL_SMS(int Msg)
 
 //***************************************************************
 void	TUsartGSM::SetMasterNmbr(char* src)
-{/*strncpy(StoreRec.MasterNmbr,src,15)			;
+{strcpy(StrMasterNmbr,src)						;
+ /*strncpy(StoreRec.MasterNmbr,src,15)			;
  StoreFlash.StoreRec(&StoreRec)					;*/}
 //***************************************************************
 char*	TUsartGSM::GetMasterNmbr(void)					
-{return "";/*StoreRec.MasterNmbr			;*/}
+{return StrMasterNmbr	;/*StoreRec.MasterNmbr			;*/}
 //***************************************************************
 uint16_t	TUsartGSM::ParseTextSMS(char* str)
 {uint16_t		msgMsg = msgEmpty		;
@@ -596,7 +598,11 @@ char*	TUsartGSM::DecodeHEX_SMS(char* str,char* buf)
  return buf	;}
 //***************************************************************
 
+//***************************************************************
+void	TUsartGSM::FnMdmInit(void)		// callback для CDC Mdm
+{
 
+}
 //***************************************************************
 void	TUsartGSM::Init(void)
 {const	char	EndS[] = "\n>"			;// символы "конец строки"
@@ -606,6 +612,11 @@ void	TUsartGSM::Init(void)
 // FnGetInfSMS = 0	; FnGetPswGSM = 0	; FnSetPswGSM = 0	;
 // TUsart::InitHW(USART_GSM,9600)			;
  flEventNeed = 0	;
+ 
+ FnWriteBuff = USBH_CDC_WriteBuff		;
+ cbUSBH_CDC_ListenData = FnListenData	;
+ cbUSBH_CDC_MDM_Init   = FnMdmInit		;
+
  
  InitHW()			;
 }
@@ -628,7 +639,7 @@ void	TUsartGSM::InitGSM(void)
 }
 //***************************************************************
 void	TUsartGSM::InitHW(void)
-{GPIO_InitTypeDef		GPIO_InitStructure				;
+{//GPIO_InitTypeDef		GPIO_InitStructure				;
 
 // GPIO_Enable(VEN_PORT)	;
 // GPIO_Enable(STT_PORT)	;
@@ -659,64 +670,52 @@ char*	TUsartGSM::GetS(char* buf,int maxLen)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void	TUsartGSM::WriteString(char* Str)
 {
- DisableTxIRQ()		;
+ FifoTx.Reset()		;
+
  for(int ix=0;Str && Str[ix];ix++) FifoTx.In(Str[ix])	;
- EnableTxIRQ()		;
+
+ if(FnWriteBuff) FnWriteBuff(FifoTx.GetBuf(),FifoTx.GetLen())	;
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void	TUsartGSM::WriteStringLN(const char* Str)
 {
- DisableTxIRQ()		;
+ FifoTx.Reset()		;
+
  for(int ix=0;Str && Str[ix];ix++) FifoTx.In(Str[ix])	;
  FifoTx.In('\r')	; FifoTx.In('\n')	;
- EnableTxIRQ()		;
+
+ if(FnWriteBuff) FnWriteBuff(FifoTx.GetBuf(),FifoTx.GetLen())	;
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void	TUsartGSM::WriteStringLN_P(const char* Str,const char* Prm)
 {
- DisableTxIRQ()						;
+ FifoTx.Reset()		;
+ 
  for(int ix=0;Str && Str[ix];ix++) FifoTx.In(Str[ix])	;
  for(int ix=0;Prm && Prm[ix];ix++) FifoTx.In(Prm[ix])	;
  FifoTx.In('\r')	; FifoTx.In('\n');
- EnableTxIRQ()						;
+ 
+ if(FnWriteBuff) FnWriteBuff(FifoTx.GetBuf(),FifoTx.GetLen())	;
 }
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-int TUsartGSM::SendChar(int ch)
+//int TUsartGSM::SendChar(int ch)
+//{
+// DisableTxIRQ()						;
+// if(!FifoTx.Full()) FifoTx.In(ch)	;
+// EnableTxIRQ()						;
+// return ch							;
+//}
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+int		TUsartGSM::FnListenData(void* Buf,int Len)
 {
- DisableTxIRQ()						;
- if(!FifoTx.Full()) FifoTx.In(ch)	;
- EnableTxIRQ()						;
- return ch							;
-}
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ return 0	;}
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void	TUsartGSM::EnableRxIRQ (void){}
 void	TUsartGSM::DisableRxIRQ(void){}
 void	TUsartGSM::EnableTxIRQ (void){}
 void	TUsartGSM::DisableTxIRQ(void){}
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-////***************************************************************
-//// Эта подпрограмма выполняется в контексте прерывания !!!!!
-//void	TUsartGSM::ReceiveBuf(class TFiFo* fifo,int cnt)
-//{int 	ix = 0	;
-// char	bb		;
-// 
-// for(ix=0;ix<cnt && ix<LenBF-1 && !fifo->Empty();){
-//   bb = fifo->Out()		;
-//   if(bb != '\n' && bb != '\r' && isprint(bb)) RcvBuf[ix++] = bb	;
-// }
-// RcvBuf[ix] = '\r'	; RcvBuf[ix+1] = 0	;// xputs(RcvBuf)	;
-// 
-// RcvBuf[ix] = 0	; 
-// strRcv = RcvBuf	; cntRcv = ix		;
-//} 
-////***************************************************************
-//// Эта подпрограмма выполняется в контексте прерывания !!!!!
-//void	TUsartGSM::FReceiveBuf(class TFiFo* fifo,int cnt)
-//{if(Instance && fifo && !fifo->Empty() && cnt) Instance->ReceiveBuf(fifo,cnt)	;}
-////**************************************************************
-
 // Эта подпрограмма выполняется в контексте прерывания !!!!!
 void	TUsartGSM::FOnTimer(void)
 {

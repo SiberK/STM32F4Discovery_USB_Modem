@@ -29,6 +29,8 @@ public:
  int	Empty(void){ return Cnt >  0    ? 0:1		;}
  int	Full(void) { return Cnt <= Size ? 0:1		;}
  char*	GetS(char* buf,int lenBuf)					;// взять одну строку, если есть
+ char*	GetBuf(void){ return Buf					;}// дай буфер
+ int	GetLen(void){ return Cnt					;}// сколько данных в буфере?
 };
 //-------------------------------------------------
 //void	xputs_F(const char* str);

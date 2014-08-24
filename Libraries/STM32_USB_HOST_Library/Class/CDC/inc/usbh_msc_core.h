@@ -78,7 +78,6 @@ typedef struct _MSC_Process
 MSC_Machine_TypeDef; 
 
 
-
 /* Structure for CDC process */
 typedef struct _CDC_Process
 {
@@ -122,6 +121,10 @@ CDC_Machine_TypeDef;
 /** @defgroup USBH_MSC_CORE_Exported_Variables
   * @{
   */ 
+#ifdef __cplusplus
+ extern "C" 
+{
+#endif
 extern USBH_Class_cb_TypeDef  USBH_MSC_cb;
 extern MSC_Machine_TypeDef    MSC_Machine;
 extern uint8_t MSCErrorCount;
@@ -129,6 +132,14 @@ extern uint8_t MSCErrorCount;
 extern USBH_Class_cb_TypeDef  USBH_CDC_cb;
 extern MSC_Machine_TypeDef    CDC_Machine;
 extern uint8_t CDCErrorCount;
+
+
+extern		USBH_Status		USBH_CDC_WriteBuff		(void* Data,int Len)		;
+extern		int				(*cbUSBH_CDC_ListenData)(void* Data,int Len)		;
+extern		void			(*cbUSBH_CDC_MDM_Init)	(void)						;
+#ifdef __cplusplus
+}
+#endif
 
 /**
   * @}
