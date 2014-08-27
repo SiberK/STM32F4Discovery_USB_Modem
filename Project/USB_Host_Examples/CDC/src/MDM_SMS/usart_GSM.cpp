@@ -4,6 +4,7 @@
 #include		<stdlib.h>
 #include		<ctype.h>
 #include		"usart_GSM.h"
+#include		"Log.h"
 //***************************************************************
 //***************************************************************
 //#define		USART_GSM			USART2
@@ -45,7 +46,7 @@ const	char*	strMsg = 0							;
 //static	char	GsmMsg[80]						;
 //***************************************************************
 const	char	strOK[] 			= "OK"			;
-const	char	strAT[] 			= "AT"			;
+const	char	strAT[] 			= "AT;E1;^CURC=0"	;
 const	char	strERROR[] 			= "ERROR"		;
 const	char	strNO_CRR[]			= "NO CARRIER"	;
 const	char	strPROMPT[]			= ">"			;
@@ -62,21 +63,27 @@ const	char	strFMT_PDUp[]		= "AT+CMGF=0"	;
 const	char	strFMT_PDUt[]	 	= "AT+CMGF=1"	;
 //const	char	strGET_LST_SMS[]	= "AT+CMGL=4,0"	;
 const	char	strSMS_STRG1[]  	= "AT+CPMS=?"	;
+const	char	strSET_MODE_CNMI[] 	= "AT+CNMI=1,1,2,2,1"	;
+const	char	strGET_MODE_CNMI[] 	= "AT+CNMI?"	;
 const	char	strREQ_CNT_SMS[]	= "AT+CSQ;+CPMS?"	;
 const	char	strRD_SMS[]  		= "AT+CMGR=%d"	;
 const	char	strRD_SMS1[]  		= "AT+CMGR=1"	;// читать СМС_1
 const	char	strDEL_SMS[]		= "AT+CMGD=%d,0";// удалить одну СМС
 const	char	strDEL_SMS1[]		= "AT+CMGD=1,0"	;// удалить СМС_1
-const	char	strDEL_ALL_SMS[]	= "AT+CMGD=1,1"	;
+const	char	strDEL_ALL_SMS[]	= "AT+CMGD=1,4"	;
 const	char	strSEND_SMS[]		= "AT+CMGS="	;
 const	char	strCLTS[]			= "AT+CLTS=1"	;// Get Local Timestamp
-const	char	strINIT1[]			= "AT+CMGF=1;+COPS?;+GSV;+CSQ;+CLIP=1;+CLTS=1;+CCLK?"	;
+//const	char	strINIT1[]			= "AT+CMGF=1;+COPS?;+GSV;+CSQ;+CLIP=1;+CLTS=1;+CCLK?"	;// for SIM900
+const	char	strINIT1[]			= "AT^CURC=0;+CLIP=1;+CMGF=1;+COPS?;i;+CSQ"	;
+const	char	strINIT2[]			= "AT+CPMS=\"SM\",\"SM\",\"SM\""	;
+//const	char	strINIT2[]			= "AT+CPMS=\"me\",\"me\",\"me\""	;
 
 //const	char	str3[]="";
 //const	char	str4[]="";
 
 const	char	strAnsCPMS[]		= "+CPMS: \"SM\""	;
 const	char	strAnsCMGR[]		= "+CMGR: "			;
+const	char	strAnsCMT[]			= "+CMT: "			;// Пришла СМС!
 const	char	strAnsCMTI[]		= "+CMTI: "			;// Пришла СМС!
 const	char	strAnsCLIP[]		= "+CLIP: "			;
 
@@ -84,12 +91,13 @@ const	char	strMsg_INIT_OK[]   	= "->INIT_OK"		;
 const	char	strMsg_INIT_ERR[]  	= "->INIT_ERR"		;
 const	char	strMsg_CPMS_OK[] 	= "->CPMS_OK"		;
 const	char	strMsg_RD_SMS_OK[] 	= "->RD_SMS_OK"		;
-const	char	strMsg_DEL_ALL_SMS_OK[] = 	"->DEL_ALL_SMS_OK";
+const	char	strMsg_DEL_ALL_SMS_OK[]  = "->DEL_ALL_SMS_OK";
+const	char	strMsg_SET_MODE_CNMI_OK[]= "->SET_MODE_CNMI_OK";
 const	char	strMsg_DEL_SMS_OK[] = "->DEL_SMS_OK"	;
 const	char	strMsg_DEL_SMS_ERR[]= "->DEL_SMS_ERR"	;
 const	char	strMsg_SMS_SEND_OK[]= "->SMS SEND OK"	;
 const	char	strMsg_SMS_SEND_ERR[]="->SMS SEND ERR"	;
-const	char	strNO_INFO[]		= "NO INFO\032\r\n"	;
+const	char	strNO_INFO[]		= "NO INFO"			;
 
 const	char	cmdNewPass[]		= "np"				;
 const	char	cmdStart[]			= "start"			;
@@ -111,8 +119,12 @@ enum{
   msgPROMPT		= 9,
   msgTimeOut	= 10,
   msgSMS_PARSED = 11,
+  msgINIT,
   msgDelSMS,
+  msgDelAllSMS,
   msgSendSMS,
+  msgSetCNMI,
+  msgGetCNMI,
   msgGSM
 };
 //-----------------------------------------------------
@@ -129,7 +141,9 @@ typedef enum{
   sttDEL_SMS	= 9,
   sttDEL_SMS1	= 10,
   sttIDLE		= 11,
-  sttATH		= 12
+  sttSetCNMI	= 12,
+  sttGetCNMI	= 13,
+  sttATH		= 14
 }TGSM_State		;
 
 const char*	strStat[sttATH-sttNone+1]={
@@ -145,7 +159,9 @@ const char*	strStat[sttATH-sttNone+1]={
 "DEL_SMS"		,
 "DEL_SMS1"		,
 "IDLE"			,
-"ATH"
+"ATH"			,
+"SetCNMI"		,
+"GetCNMI"
 };
 //***************************************************************
 int	ParseParams(char* str,char* dlm,char* Prm,int* Val,const int CntPrm,const int LenPrm);
@@ -181,6 +197,7 @@ EVENT_TYPE	TUsartGSM::OnEvent(TEvent* Event)
    else if(strMsg){ Event->Type = evDbgMsg2	; Event->strData[0] = (char*)strMsg	; strMsg = 0	;}
    else if(flEventNeed){ Event->Type = flEventNeed	; Event->Value = flValueNeed; flEventNeed=0	;}
    else if(strStt){ Event->Type = evStat1	; Event->strData[0] = strStt		; strStt = 0	;}
+   else if(flInitOK){Event->Type = evGsmInitOK	; flInitOK = 0	;}
  break	;
  
 // case evClearPswGSM	: PswGSM = 0	; if(FnSetPswGSM ) FnSetPswGSM(PswGSM)			; break	;
@@ -201,28 +218,39 @@ uint16_t TUsartGSM::OnEventGSM(void)
 {uint16_t	msgMsg = msgEmpty	;
 
  if(StateTrg == sttIDLE){
-   if(*PhoneNmbrCall && !timTxPause){ 					 // если есть вх вызов и истекла защитная пауза
+   if(flINIT){ flINIT = 0	; msgMsg = msgINIT			;}
+   
+   else if(*PhoneNmbrCall && !timTxPause){ 					 // если есть вх вызов и истекла защитная пауза
 	 if(NeedSendSMS)									 // если надо отправить СМС
 	   strcpy(PhoneNmbrOut,PhoneNmbrCall)				;// то для этого возьмем номер
 	 *PhoneNmbrCall = 0									;// сбросим флаг
 	 msgMsg = msgCLIP		;
    }
-   else if(FIxDelSMS && !timTxPause){					 // если есть СМС, которую надо удалить
-	 msgMsg   = msgDelSMS	;
+   else if(FIxDelSMS>=0 && !timTxPause){					 // если есть СМС, которую надо удалить
+	 msgMsg = msgDelSMS		;
    }
    else if(NeedSendSMS && !timTxPause && !timGuardSMS){
 	 if(*PhoneNmbrSMS && !*PhoneNmbrOut){ 
 	   strcpy(PhoneNmbrOut,PhoneNmbrSMS)	; *PhoneNmbrSMS = 0	;}
 	 if(*PhoneNmbrOut) msgMsg = msgSendSMS	;	 
    }
-   else if(FIxInSMS && !timTxPause){					 // если есть вх СМС и истекла защитная пауза
-	 FIxRdSMS = FIxInSMS	; FIxInSMS = 0				;// возьмем IxSMS и сбросим флаг
+   else if(FIxInSMS>=0 && !timTxPause){					 // если есть вх СМС и истекла защитная пауза
+	 FIxRdSMS = FIxInSMS	; FIxInSMS = -1				;// возьмем IxSMS и сбросим флаг
 	 msgMsg   = msgInSMS	;
    }
-   else if(FIxMemSMS){
+   else if(FIxMemSMS>=0){
      FIxRdSMS = FIxMemSMS	; FIxMemSMS++	;
 	 if(FIxMemSMS > FTtlMemSMS) FIxMemSMS=FTtlMemSMS=FCntMemSMS=0	;
 	 msgMsg = msgMemSMS		;
+   }
+   else if(flNeedCNMI){ flNeedCNMI = 0		;
+     msgMsg = msgSetCNMI	;
+   }
+   else if(flGetCNMI){ flGetCNMI = 0		;
+     msgMsg = msgGetCNMI	;
+   }
+   else if(flDelAllSMS){ flDelAllSMS = 0	;
+     msgMsg = msgDelAllSMS	;
    }
  }
 
@@ -234,16 +262,36 @@ int		TUsartGSM::Operate(int Msg)
 {int	result = TIM_WAIT_PWR_ON;
 
  switch(Msg){
+   case msgINIT			: StateTrg = sttINIT	; SttPhase = 1	; break	;
    case	msgCLIP 		: StateTrg = sttATH		; SttPhase = 1	; break	;
    case msgInSMS		: StateTrg = sttRD_SMS	; SttPhase = 1	; break	;
    case msgMemSMS		: StateTrg = sttRD_SMS	; SttPhase = 1	; break	;
    case msgDelSMS		: StateTrg = sttDEL_SMS	; SttPhase = 1	; break	;
    case msgSendSMS		: StateTrg = sttInfSMS	; SttPhase = 1	; break	;
+   case msgSetCNMI		: StateTrg = sttSetCNMI	; SttPhase = 1	; break	;
+   case msgDelAllSMS	: StateTrg = sttDEL_ALL_SMS;SttPhase = 1	; break	;
    case msgSMS_PARSED 	: break	;
    case msgTimeOut		: break	;
  }
  
- if(State == StateTrg){
+ if(State != StateTrg){
+   switch((int)StateTrg){
+//     case sttPwrON 			: result = Operate_PwrON(Msg)		; break	;
+     case sttINIT 			: result = Operate_INIT(Msg)		; break	;
+     case sttREQ_CNT_SMS	: result = Operate_REQ_CNT_SMS(Msg)	; break	;
+     case sttRD_SMS			: result = Operate_RD_SMS(Msg)		; break	;
+     case sttDEL_SMS		: result = Operate_DEL_SMS(Msg)		; break	;
+     case sttDEL_ALL_SMS	: result = Operate_DEL_ALL_SMS(Msg)	; break	;
+	 case sttInfSMS			: result = Operate_InfSMS(Msg)		; break	;
+	 case sttATH		 	: result = Operate_ATH(Msg)			; break	;
+	 case sttSetCNMI		: result = Operate_SetCNMI(Msg)		; break	;
+	 case sttGetCNMI		: result = Operate_GetCNMI(Msg)		; break	;
+	 case sttIDLE		 	: result = Operate_IDLE(Msg)		; break	;
+	 default	   			: result = TIM_WAIT_PWR_ON			;
+   }
+   if(SttPhase > 0 && result > 0) SttPhase++	;
+ }
+ else{
    SttPhase = 1		;
    switch((int)StateTrg){
       case sttNone			: StateTrg = sttIDLE			; break	;
@@ -256,23 +304,10 @@ int		TUsartGSM::Operate(int Msg)
 	  case sttInfSMS		: StateTrg = sttIDLE			; break	;
 	  case sttREQ_CNT_SMS 	: StateTrg = sttIDLE			; break	;//
 	  case sttIDLE		 	: StateTrg = sttREQ_CNT_SMS		; break	;// повторить этот запрос
+	  case sttSetCNMI		: StateTrg = sttGetCNMI			; break	;
+	  case sttGetCNMI		: StateTrg = sttIDLE			; break	;
 	  default      			: StateTrg = sttIDLE			;
    }
- }
- else{
-   switch((int)StateTrg){
-//     case sttPwrON 			: result = Operate_PwrON(Msg)		; break	;
-     case sttINIT 			: result = Operate_INIT(Msg)		; break	;
-     case sttREQ_CNT_SMS	: result = Operate_REQ_CNT_SMS(Msg)	; break	;
-     case sttRD_SMS			: result = Operate_RD_SMS(Msg)		; break	;
-     case sttDEL_SMS		: result = Operate_DEL_SMS(Msg)		; break	;
-     case sttDEL_ALL_SMS	: result = Operate_DEL_ALL_SMS(Msg)	; break	;
-	 case sttInfSMS			: result = Operate_InfSMS(Msg)		; break	;
-	 case sttATH		 	: result = Operate_ATH(Msg)			; break	;
-	 case sttIDLE		 	: result = Operate_IDLE(Msg)		; break	;
-	 default	   			: result = -1						;
-   }
-   if(SttPhase > 0 && result > 0) SttPhase++	;
  }
  
  if(result <= 0) result = TIM_WAIT_500	;
@@ -304,13 +339,17 @@ int		TUsartGSM::Operate_IDLE(int Msg)
 //***************************************************************
 int		TUsartGSM::Operate_INIT(int Msg)
 {int	result = 500;
+ flINIT = 0		;
 
  switch(SttPhase){
    case	1 : ResetFiFo()		; WriteStringLN(strAT)			; break	;
    case 2 : 				  WriteStringLN(strINIT1)		; break	;
-   case	3 : if(Msg == msgOK){ State  = StateTrg				;
+   case 3 : 				  WriteStringLN(strINIT2)		; break	;
+   case	4 : if(Msg == msgOK){ State  = StateTrg				;
 							  strMsg = strMsg_INIT_OK		;
-							  flMdmPresent = 1				;}
+							  flMdmPresent = flInitOK = 1	;
+							  flNeedCNMI   = 1				;
+							  flDelAllSMS  = 1				;}
 			else			 {strMsg = strMsg_INIT_ERR		;
 							  flMdmPresent = 0				;}
 			break	;
@@ -356,7 +395,7 @@ int		TUsartGSM::Operate_InfSMS(int Msg)
    case	2 : if(Msg == msgPROMPT){
 				str = FnGetInfSMS ? FnGetInfSMS(SmsOutBuf,LenBF):
 									(char*)strNO_INFO			;
-				WriteStringLN(str)	; NeedSendSMS = 0		; 
+				WriteStringLN_P(str,"\032\r\n")	; NeedSendSMS = 0	; 
 				*PhoneNmbrOut =0	; timGuardSMS = TIM_GUARD_SMS	;}
    break	;
    
@@ -374,9 +413,9 @@ int		TUsartGSM::Operate_RD_SMS(int Msg)
  char	str[20]		;
 
  switch(SttPhase){
-   case	1 :	if(!FIxRdSMS) FIxRdSMS = 1					;
+   case	1 :	if(FIxRdSMS<0) FIxRdSMS = 1					;
 			sprintf(str,strRD_SMS,FIxRdSMS)				;
-			FIxDelSMS = FIxRdSMS	; FIxRdSMS = 0		;
+			FIxDelSMS = FIxRdSMS	; FIxRdSMS = -1		;
 			WriteStringLN(str)		; result = 2000		; break	;
    case	2 : if(Msg == msgOK) strMsg = strMsg_RD_SMS_OK	; 
 								      result = 100		; break	;
@@ -391,7 +430,7 @@ int		TUsartGSM::Operate_DEL_SMS(int Msg)
 
  switch(SttPhase){
    case	1 : sprintf(str,strDEL_SMS,FIxDelSMS)			; 
-			FIxDelSMS = 0	; WriteStringLN(str)		; break	;
+			FIxDelSMS = -1	; WriteStringLN(str)		; break	;
    case	2 : if(Msg == msgOK)    strMsg = strMsg_DEL_SMS_OK;
 	   else if(Msg == msgERROR) strMsg = strMsg_DEL_SMS_ERR;
 	   State = StateTrg									; break	;   
@@ -423,6 +462,29 @@ int		TUsartGSM::Operate_DEL_ALL_SMS(int Msg)
  }
  return result	;}
 //***************************************************************
+int		TUsartGSM::Operate_SetCNMI(int Msg)
+{int	result = 500;
+
+ switch(SttPhase){
+   case	1 : WriteStringLN(strSET_MODE_CNMI)				; break	;
+   case	2 : if(Msg == msgOK) strMsg = strMsg_SET_MODE_CNMI_OK	;
+	   else if(Msg == msgERROR){}
+	   State = StateTrg									; break	;   
+   default: SttPhase = 0	; result = -1				;
+ }
+ return result	;}
+//***************************************************************
+int		TUsartGSM::Operate_GetCNMI(int Msg)
+{int	result = 500;
+
+ switch(SttPhase){
+   case	1 : WriteStringLN(strGET_MODE_CNMI)				;
+	   State = StateTrg									; break	;   
+   default: SttPhase = 0	; result = -1				;
+ }
+ return result	;}
+//***************************************************************
+
 
 
 //***************************************************************
@@ -448,12 +510,12 @@ uint16_t	TUsartGSM::ParseTextSMS(char* str)
  
  ParseParams(str,Dlm,pPrm,Val,cntPrm,lenPrm)						;
  if(Val[0] == PswGSM){
-//   if(!StrCmp(Prm[1],cmdNewPass)){ PswGSM = Val[2]					; 
-//	 if(FnSetPswGSM ) FnSetPswGSM(PswGSM)							;
-//	 strMsg = StrDbg	; sprintf(StrDbg,"new Psw = %d", PswGSM)	;
-//								   flEventNeed = evGetEvent			;}
-//   if(!StrCmp(Prm[1],cmdStart  ))  flEventNeed = ebBoilStartP		;
-//   if(!StrCmp(Prm[1],cmdStop   ))  flEventNeed = ebBoilStop			;
+   if(!StrCmp(Prm[1],cmdNewPass)){ PswGSM = Val[2]					; 
+	 if(FnSetPswGSM ) FnSetPswGSM(PswGSM)							;
+	 strMsg = StrDbg	; sprintf(StrDbg,"new Psw = %d", PswGSM)	;
+								   flEventNeed = evGetEvent			;}
+   if(!StrCmp(Prm[1],cmdStart  ))  flEventNeed = evStartP			;
+   if(!StrCmp(Prm[1],cmdStop   ))  flEventNeed = evStopP			;
 //   if(!StrCmp(Prm[1],cmdTermTrg)){ flEventNeed = evSetTermo			; 
 //								   flValueNeed = Val[2]				;}
    if(!StrCmp(Prm[1],cmdMaster)){   SetMasterNmbr(PhoneNmbrSMS)		;
@@ -493,6 +555,7 @@ uint16_t	TUsartGSM::Parse(char* str,int cnt)
  else if(!StrCmp(str,strAnsCMGR)) 	msgMsg = ParseCMGR(str)		;
  else if(!StrCmp(str,strAnsCLIP)) 	msgMsg = ParseCLIP(str)		;
  else if(!StrCmp(str,strAnsCMTI)) 	msgMsg = ParseCMTI(str)		;// Пришла СМС!
+ else if(!StrCmp(str,strAnsCMT )) 	msgMsg = ParseCMT(str)		;// Пришла СМС!
  
  return	msgMsg	;}
 //***************************************************************
@@ -528,8 +591,8 @@ uint16_t	TUsartGSM::ParseCPMS(char* str)
  
  FCntMemSMS = Val[2]					;
  FTtlMemSMS = Val[3]					;
- if(FCntMemSMS > 0 && FTtlMemSMS > 0) FIxMemSMS = 1	;// В памяти есть СМС
- else FIxMemSMS = FCntMemSMS = FTtlMemSMS = 0		;
+ if(FCntMemSMS > 0 && FTtlMemSMS > 0) FIxMemSMS = 0	;// В памяти есть СМС
+ else FIxMemSMS = FCntMemSMS = FTtlMemSMS = -1		;
  
  timTxPause = TIM_TX_PAUSE				;// защитная пауза TX 
  return	msgMsg		;}
@@ -542,8 +605,30 @@ uint16_t	TUsartGSM::ParseCMTI(char* str)		// Входящая СМС!
  char			Dlm[] = ",:"			;
  
  int result = ParseParams(str,Dlm,0,Val,cntPrm,0)	;
- if(Val[2]>0){ FIxInSMS = Val[2]		;}// Будем Читать СМС 
+ if(Val[2]>=0){ FIxInSMS = Val[2]		;}// Будем Читать СМС 
  
+ timTxPause = TIM_TX_PAUSE				;// защитная пауза TX 
+ return	msgMsg	;}
+//***************************************************************
+// +CMT: "+79131236578",,"14/03/21,19:16:04+28"
+uint16_t	TUsartGSM::ParseCMT(char* str)		// Входящая СМС! , которая не попадает в память
+{uint16_t		msgMsg = msgEmpty		;
+ const int		cntPrm = 6, lenPrm = 16	;
+ char			Prm[cntPrm][lenPrm]		;
+ char*			pPrm = &Prm[0][0]		;
+ int			Val[cntPrm]				;
+ char			Dlm[] = ",:"			;
+ 
+ int result = ParseParams(str,Dlm,pPrm,Val,cntPrm,lenPrm)	;
+
+ char*	pNmbr = strchr(Prm[1],'\"')							;
+ if(pNmbr){
+   strncpy(PhoneNmbrSMS,pNmbr,16)							;// Номер отправителя СМС! запомним
+   if(!StrCmp(PhoneNmbrSMS,strValidNmbr))					 // Если номер начинается на "+79" то будем распознавать SMS!
+     flWaitSMS = 1											;// СМС начнется со следующей принятой строки
+   else{ *PhoneNmbrSMS = 0									;}
+ }
+ flNeedCNMI = 1							;// необходимо передернуть CNMI!!!
  timTxPause = TIM_TX_PAUSE				;// защитная пауза TX 
  return	msgMsg	;}
 //***************************************************************
@@ -561,6 +646,7 @@ uint16_t	TUsartGSM::ParseCMGR(char* str)
  char			Dlm[] = ","				;
  int			isUnread = 0			;
  
+// flNeedCNMI = 1							;// необходимо передернуть CNMI!!!
  int result = ParseParams(str,Dlm,pPrm,Val,cntPrm,lenPrm)	;
  char*	str2 = strchr(Prm[0],'\"')							;
  if(str2 && !StrCmp(str2+1,"REC UNR")) isUnread = 1			;
@@ -599,9 +685,18 @@ char*	TUsartGSM::DecodeHEX_SMS(char* str,char* buf)
 //***************************************************************
 
 //***************************************************************
+int		TUsartGSM::FnListenData(void* Buf,int Len)	// callback для CDC
+{char*	Str = (char*)Buf	;
+ Log.d(Str)	; 
+ if(Instance){
+   for(int ix=0;Str && Str[ix] && ix<Len;ix++) Instance->FifoRx.In(Str[ix])	;
+ }
+ return 0	;}
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void	TUsartGSM::FnMdmInit(void)		// callback для CDC Mdm
 {
-
+ Log.d("InitMDM OK\n")	;
+ if(Instance){ Instance->InitGSM()		;}
 }
 //***************************************************************
 void	TUsartGSM::Init(void)
@@ -609,14 +704,13 @@ void	TUsartGSM::Init(void)
  Instance = this	;
  SetFifoRx(GsmBufRx,LenBF,0,EndS)		;
  SetFifoTx(GsmBufTx,LenBF)				; 
-// FnGetInfSMS = 0	; FnGetPswGSM = 0	; FnSetPswGSM = 0	;
+ FnGetInfSMS = 0	; //FnGetPswGSM = 0	; FnSetPswGSM = 0	;
 // TUsart::InitHW(USART_GSM,9600)			;
  flEventNeed = 0	;
  
  FnWriteBuff = USBH_CDC_WriteBuff		;
  cbUSBH_CDC_ListenData = FnListenData	;
  cbUSBH_CDC_MDM_Init   = FnMdmInit		;
-
  
  InitHW()			;
 }
@@ -624,18 +718,21 @@ void	TUsartGSM::Init(void)
 void	TUsartGSM::InitGSM(void)
 {flMdmPresent = 0			; strMsg = 0	;
  FCntMemSMS = FTtlMemSMS = FLenSMS = FReadAll = 0			;
- State = StateTrg = sttNone	; SttPhase = 0	;
+ State = StateTrg = sttNone	; 
  *PhoneNmbrSMS = *PhoneNmbrCall = *PhoneNmbrOut = 0			;
  timGuardSMS = 0			;
 		 
 // StoreFlash.Init(BANK_STORE_GSM,PAGE_CNT_GSM,0)	;
 // StoreFlash.RestoreRec(&StoreRec)				;
 
-// PswGSM = FnGetPswGSM ? FnGetPswGSM():0		;
-// sprintf(StrDbg,"PswGSM = %d,%s",PswGSM,GetMasterNmbr())	; strMsg = StrDbg	;
- FIxRdSMS=FIxDelSMS=FIxMemSMS=FIxInSMS=0	;
- flWaitSMS = 0								; 
-// strDbg = DecodeHEX_SMS(Smpl,bufSmpl)		;
+ PswGSM = FnGetPswGSM ? FnGetPswGSM():0		;
+ sprintf(StrDbg,"PswGSM = %d,%s",PswGSM,GetMasterNmbr())	; strMsg = StrDbg	;
+ FIxRdSMS=FIxDelSMS=FIxMemSMS=FIxInSMS=-1	;
+ flWaitSMS = 0								;
+ flInCall=flInSMS=flNeedCNMI=flGetCNMI=flDelAllSMS=flInitOK=0		;
+
+ flINIT = 1		;
+ timOut = 5000	;// через 5 сек начнем инит!!!
 }
 //***************************************************************
 void	TUsartGSM::InitHW(void)
@@ -706,11 +803,6 @@ void	TUsartGSM::WriteStringLN_P(const char* Str,const char* Prm)
 // return ch							;
 //}
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-int		TUsartGSM::FnListenData(void* Buf,int Len)
-{
-
- return 0	;}
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void	TUsartGSM::EnableRxIRQ (void){}
 void	TUsartGSM::DisableRxIRQ(void){}
 void	TUsartGSM::EnableTxIRQ (void){}
@@ -728,6 +820,9 @@ void	TUsartGSM::FOnTimer(void)
 //***************************************************************
 void	TUsartGSM::OnTimer(void){if(Instance) Instance->FOnTimer()	;}
 //***************************************************************
+
+
+
 //***************************************************************
 int	ParseParams(char* str,char* dlm,char* Prm,int* Val,const int CntPrm,const int LenPrm)
 {int		result = 0						;

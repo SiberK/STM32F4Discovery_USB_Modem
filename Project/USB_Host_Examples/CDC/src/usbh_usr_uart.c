@@ -87,6 +87,8 @@ FIL file;
 uint8_t Image_Buf[IMAGE_BUFFER_SIZE];
 uint8_t line_idx = 0;   
 extern	Led_TypeDef	LEDind			;
+static	Led_TypeDef	LEDprv			;
+static	int			PIDprv = 0		;
 
 
 /*  Points to the DEVICE_PROP structure of current device */
@@ -206,9 +208,7 @@ void USBH_USR_DeviceAttached(void)
 * @retval None
 */
 void USBH_USR_UnrecoveredError (void)
-{
-  
-  /* Set default screen color*/ 
+{  /* Set default screen color*/ 
   Log.d((void *)MSG_UNREC_ERROR); 
 }
 
@@ -220,10 +220,9 @@ void USBH_USR_UnrecoveredError (void)
 * @retval Staus
 */
 void USBH_USR_DeviceDisconnected (void)
-{
-  /* Set default screen color*/
+{/* Set default screen color*/
   Log.d((void *)MSG_DEV_DISCONNECTED);
-  STM_EVAL_LEDOff(LED5)	; STM_EVAL_LEDOff(LED6)	; LEDind = LED3	;
+  if(PIDprv != 0x155B){ STM_EVAL_LEDOff(LED5)	; STM_EVAL_LEDOff(LED6)	; LEDind = LED3	;}
 }
 /**
 * @brief  USBH_USR_ResetUSBDevice 
@@ -231,8 +230,8 @@ void USBH_USR_DeviceDisconnected (void)
 * @retval None
 */
 void USBH_USR_ResetDevice(void)
-{
-  /* callback for USB-Reset */
+{/* callback for USB-Reset */
+  LEDind = LEDprv	;
 }
 
 
@@ -278,8 +277,10 @@ void USBH_USR_Device_DescAvailable(void *DeviceDesc)
 			 "USB v%X.%02X\n" ,
 			 hs->idVendor,hs->idProduct,
 			 hs->bcdUSB>>8,hs->bcdUSB&0xFF);
-  if(hs->idProduct == 0x155B){ STM_EVAL_LEDOff(LED3)	; STM_EVAL_LEDOff(LED6)	; LEDind = LED5	;}
-  if(hs->idProduct == 0x1506){ STM_EVAL_LEDOff(LED3)	; STM_EVAL_LEDOff(LED6)	; LEDind = LED6	;}
+  PIDprv = hs->idProduct	;
+  LEDprv = LEDind	;
+  if(PIDprv == 0x155B){ STM_EVAL_LEDOff(LED3)	; STM_EVAL_LEDOff(LED5)	; STM_EVAL_LEDOff(LED6)	; LEDind = LED5	;}
+  if(PIDprv == 0x1506){ STM_EVAL_LEDOff(LED3)	; STM_EVAL_LEDOff(LED5)	; STM_EVAL_LEDOff(LED6)	; LEDind = LED6	;}
 }
 
 /**

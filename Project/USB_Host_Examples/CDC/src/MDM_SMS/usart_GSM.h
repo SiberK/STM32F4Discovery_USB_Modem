@@ -41,11 +41,11 @@ class	TUsartGSM/*:public TUsart*/{
  int					timGuardSMS				;// защитная пауза от повтора СМС
  int					timTxPause				;// защитная пауза, чтоб UART GSM модема успел переключится на прием 
  short					FLenSMS					;
- u8						FCntMemSMS,FTtlMemSMS	;
- u8						FIxInSMS,FIxMemSMS		;
- u8						FIxRdSMS,FIxDelSMS		;// СМС, которую надо прочитать, удалить
- u8						FPrsSMS,FReadAll		;
- u8						NeedSendSMS				;
+ char					FCntMemSMS,FTtlMemSMS	;
+ char					FIxInSMS,FIxMemSMS		;
+ char					FIxRdSMS,FIxDelSMS		;// СМС, которую надо прочитать, удалить
+ char					FPrsSMS,FReadAll		;
+ char					NeedSendSMS				;
  char					SttPhase,prSttPhase		;
  char					PhoneNmbrCall[20]		;
  char					PhoneNmbrSMS[20]		;
@@ -54,10 +54,14 @@ class	TUsartGSM/*:public TUsart*/{
  uint32_t				PswGSM					;
  char*					strRcv					;
  int					cntRcv					;
- uint16_t				flEventNeed,flEventMsg	;
- short					flValueNeed				;
- short					flWaitSMS				;// ожидаем текст СМС
+ 
+ char					flEventNeed,flEventMsg	;
+ char					flINIT,flValueNeed		;
+ char					flInitOK				;
+ char					flWaitSMS				;// ожидаем текст СМС
  char					flInCall,flInSMS		;
+ char					flNeedCNMI,flGetCNMI	;
+ char					flDelAllSMS				;
 
  TFiFo					FifoRx		;
  TFiFo					FifoTx		;
@@ -100,8 +104,8 @@ public:
 //		void			ReceiveBuf (class TFiFo* fifo,int cnt)	;
 // static void			FReceiveBuf(class TFiFo* fifo,int cnt)	;
 // void					ReqCntSMS(void)						;
-// TGetUInt32Value		FnGetPswGSM							;
-// TSetUInt32Value		FnSetPswGSM							;
+ TGetUInt32Value		FnGetPswGSM							;
+ TSetUInt32Value		FnSetPswGSM							;
  TGetString				FnGetInfSMS							;
  TWriteBuff				FnWriteBuff							;
  static	int				FnListenData(void* Buf,int Len)		;
@@ -112,6 +116,7 @@ private:
  uint16_t				ParseCPMS(char* str)				;
  uint16_t				ParseCMGR(char* str)				;
  uint16_t				ParseCMTI(char* str)				;
+ uint16_t				ParseCMT (char* str)				;
  uint16_t				ParseCLIP(char* str)				;
  char*					DecodeHEX_SMS (char* str,char* buf)	;
  uint16_t				ParseSMS (char* str)				;
@@ -128,6 +133,8 @@ private:
  int					Operate_InfSMS(int Msg=0)			;// выполнять последовательность действий
  int					Operate_ATH(int Msg=0)				;// выполнять последовательность действий
  int					Operate_IDLE(int Msg=0)				;// выполнять последовательность действий
+ int					Operate_SetCNMI(int Msg)			;
+ int					Operate_GetCNMI(int Msg)			;
 
  char*					GetMasterNmbr(void)					;
  void					SetMasterNmbr(char* src)			;

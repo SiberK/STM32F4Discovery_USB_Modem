@@ -18,6 +18,7 @@ typedef	EVENT_TYPE	(*ON_EVENT)(EVENT_TYPE EvType)	;
 enum	{KeyDemoLED,
 		 evGetEvent,evClearPswGSM,evEventSMS,evUseFake,evDistantion,
 		 evDbgMsg1,evDbgMsg2,evStat1,evStat2,evStat3,evStat4,
+		 evStartP,evStopP,evGsmInitOK,
 		 KeyNA};
 //--------------------------------------------------------------
 struct	TEvent{

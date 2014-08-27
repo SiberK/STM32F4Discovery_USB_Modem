@@ -200,7 +200,8 @@ void USBH_MSC_InterfaceDeInit ( USB_OTG_CORE_HANDLE *pdev,
 static USBH_Status USBH_MSC_ClassRequest(USB_OTG_CORE_HANDLE *pdev ,void *phost)
 {   
   USBH_Status status = USBH_OK ;
-  USBH_MSC_BOTXferParam.MSCState = USBH_MSC_BOT_INIT_STATE;
+  USBH_MSC_BOTXferParam.MSCState = USBH_MSC_BOT_INIT_STATE	;
+  USBH_CDC_BOTXferParam.MSCState = USBH_CDC_INIT			;
   
   return status; 
 }
@@ -224,6 +225,7 @@ static USBH_Status 	USBH_CDC_Handle(USB_OTG_CORE_HANDLE *pdev ,void   *phost)
   if(HCD_IsDeviceConnected(pdev))
   {   
     switch(USBH_CDC_BOTXferParam.MSCState){
+	
 	case	USBH_CDC_INIT:
 		USBH_CDC_BOTXferParam.MSCStateBkp = USBH_CDC_BOTXferParam.MSCState	;
 		USBH_CDC_BOTXferParam.MSCState    = USBH_CDC_GET_DATA				;// Слушаем IN endpoint
@@ -260,13 +262,13 @@ static USBH_Status 	USBH_CDC_Handle(USB_OTG_CORE_HANDLE *pdev ,void   *phost)
 		if(URB_State == URB_DONE){
 		  datalen = HCD_GetXferCnt(pdev,MSC_Machine.hc_num_in)			;
 		  if(datalen > 0){
+		    InBuff[datalen] = 0	;
 		    if(cbUSBH_CDC_ListenData) cbUSBH_CDC_ListenData(InBuff,datalen)	;
-//		    InBuff[datalen] = 0	;
 //		    Log.d("RECEIVE %d bytes: %s \n",datalen,InBuff)				;
 		  }
 		}
 		
-		if(URB_State == URB_DONE || USBH_CDC_BOTXferParam.MSCStateBkp != USBH_CDC_GET_DATA){
+		if(URB_State == URB_DONE || USBH_CDC_BOTXferParam.MSCStateBkp != USBH_CDC_BOTXferParam.MSCState){
 		  USBH_CDC_BOTXferParam.MSCStateBkp = USBH_CDC_BOTXferParam.MSCState	;
 		  status = USBH_BulkReceiveData (pdev,datapointer,MSC_Machine.MSBulkInEpSize, MSC_Machine.hc_num_in);
 		}

@@ -2,21 +2,32 @@
 #include 	"UsbhCore.h"
 #include	"usart_GSM.h"
 #include	"Log.h"
+#include	"Mark.h"
 //--------------------------------------------------------------
 void	InitUSART(void);
 void	TIM_MS_Init(void);
+char*	InfoForSMS(char* Buf,int SizeBuf);
 //--------------------------------------------------------------
 Led_TypeDef				LEDind = LED3	;
 TEvent					FEvent			;
 TUsbhCore				UsbhCore		;
 TUsartGSM				UsartGSM		;
 //--------------------------------------------------------------
+volatile uint32_t		PswGSM = 20		;
+uint32_t				GetPswGSM(void){ return PswGSM	;}
+void					SetPswGSM(uint32_t psw){PswGSM = psw	;}
+//--------------------------------------------------------------
 void		InitAll(void)
 {
+ MARK_Init()		;
  InitUSART()		;
  UsbhCore.Init()	;
  UsartGSM.Init()	;
  TIM_MS_Init()		;
+ 
+ UsartGSM.FnGetInfSMS = InfoForSMS		;
+ UsartGSM.FnGetPswGSM = GetPswGSM		;
+ UsartGSM.FnSetPswGSM = SetPswGSM		;
 }
 //--------------------------------------------------------------
 int main(void)
@@ -27,6 +38,7 @@ int main(void)
  InitAll()			;
  
  for(;1;){
+   MARK_0X
    if(prevType == Event->Type || !Event->Type){
      Event->Type = evGetEvent				;}
    prevType = Event->Type					;
@@ -34,9 +46,14 @@ int main(void)
    UsbhCore.OnEvent(Event)					;
    UsartGSM.OnEvent(Event)					;
    
-   if(Event->Type == evDbgMsg1 || Event->Type == evDbgMsg2){
-     Log.d(Event->strData[0])				;
-	 Event->Type = evGetEvent				;
+   switch(Event->Type){
+     case evDbgMsg1 :  Event->Type = evGetEvent	; break	;
+	 case evDbgMsg2:   Event->Type = evGetEvent	;  
+					   Log.d(Event->strData[0]) ; Log.d("\n")	; break	;	 
+	 case evStartP:    Event->Type = evEventSMS	; break	;	 
+	 case evStopP:     Event->Type = evEventSMS	; break	;	 
+	 case evGsmInitOK: Event->Type = evEventSMS	; 
+					   STM_EVAL_LEDOff(LEDind)	; LEDind = LED4	; break	;
    }
     
    if (i++ >= 0x10000){ i = 0				;
@@ -44,8 +61,10 @@ int main(void)
  }
 }
 //--------------------------------------------------------------
-
-
+char*	InfoForSMS(char* Buf,int SizeBuf)
+{
+ sprintf(Buf,"INFO SMS. INFO SMS.")	;
+ return Buf	;}
 //--------------------------------------------------------------
 #ifdef USE_FULL_ASSERT
 void assert_failed(uint8_t* file, uint32_t line)
@@ -56,10 +75,10 @@ void assert_failed(uint8_t* file, uint32_t line)
 #endif
 //--------------------------------------------------------------
 //------------------------------------------------------
-#define	TIM_MS					TIM6
-#define	RCC_APB1Periph_TIM_MS 	RCC_APB1Periph_TIM6
-#define	TIM_MS_IRQn				TIM6_DAC_IRQn
-#define	TIM_MS_IRQHandler		TIM6_IRQHandler
+#define	TIM_MS					TIM4
+#define	RCC_APB1Periph_TIM_MS 	RCC_APB1Periph_TIM4
+#define	TIM_MS_IRQn				TIM4_IRQn
+#define	TIM_MS_IRQHandler		TIM4_IRQHandler
 //------------------------------------------------------
 // таймер для милисекундных отсчётов
 void	TIM_MS_Init(void)
@@ -103,6 +122,7 @@ void	TIM_MS_Init(void)
 #endif
 void TIM_MS_IRQHandler(void)
 {
+ MARK_1X
  if(TIM_GetITStatus(TIM_MS,TIM_IT_Update) != RESET){
    TIM_ClearITPendingBit(TIM_MS,TIM_IT_Update)		;
    

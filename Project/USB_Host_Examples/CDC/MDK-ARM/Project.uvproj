@@ -432,6 +432,11 @@
               <FileType>8</FileType>
               <FilePath>..\src\UsbhCore.cpp</FilePath>
             </File>
+            <File>
+              <FileName>Mark.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\src\Mark.cpp</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -936,7 +941,7 @@
             <OneElfS>0</OneElfS>
             <Strict>0</Strict>
             <EnumInt>0</EnumInt>
-            <PlainCh>0</PlainCh>
+            <PlainCh>1</PlainCh>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
             <wLevel>2</wLevel>
@@ -1026,6 +1031,11 @@
               <FileName>UsbhCore.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>..\src\UsbhCore.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>Mark.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\src\Mark.cpp</FilePath>
             </File>
           </Files>
         </Group>
