@@ -64,7 +64,7 @@ static 	USBH_Status	 	USBH_MSC_GETMaxLUN		(USB_OTG_CORE_HANDLE *pdev,USBH_HOST *
 		void 			USBH_MSC_ErrorHandle	(uint8_t status);
 							   
 		USBH_Status		MY_ModeSwitch			(USB_OTG_CORE_HANDLE *pdev,void *phost);
-		USBH_Status		USBH_MY_InterfaceInit	(USB_OTG_CORE_HANDLE *pdev,void *phost,uint8_t InterfaceClass,uint8_t InterfaceProtocol);
+		USBH_Status		USBH_MY_InterfaceInit	(USB_OTG_CORE_HANDLE *pdev,void *phost,uint8_t InterfaceClass,uint8_t InterfaceProtocol,short Intf);
 		USBH_Status		USBH_CDC_WriteBuff		(void* Data,int Len)		;
 		int				(*cbUSBH_CDC_ListenData)(void* Data,int Len) = 0	;
 		void			(*cbUSBH_CDC_MDM_Init)	(void)				 = 0	;
@@ -83,6 +83,27 @@ USBH_Class_cb_TypeDef  USBH_MSC_cb =
 #define		CDC_PROTOCOL2	0x63
 #define		CDC_PROTOCOL3	0x62
 //------------------------------------------------------------------------
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+char		strMsg_HUAWEI_E171[] = "55534243123456780000000000000011062000000100000000000000000000";// MAGIC!!!!
+char		strMsg_ZTE_MF112[]   = "5553424392020000000000000000061B000000020000000000000000000000";
+//char		strMsg_ZTE_MF112[]   = "5553424312345678000000000000061e000000000000000000000000000000";
+uint8_t		buffMsg[100]			;
+
+typedef struct{
+ uint16_t		Vid,Pid	;
+ char*			strModeSwitch	;
+ uint8_t		Class,Proto		; 
+ short			Intf			;// номер интерфейса
+}TDeviceUsbMdm;
+
+TDeviceUsbMdm		TableUsbMdm[]={
+   {0x12D1,0x155B,strMsg_HUAWEI_E171,0xFF,0x62,-1}
+  ,{0x19D2,0x2000,strMsg_ZTE_MF112  ,0xFF,0xFF, 1}
+};
+
+static	TDeviceUsbMdm*		DeviceUsbMdm = 0	;
+#define	SIZE_TBL_USB_MDM	(sizeof(TableUsbMdm)/sizeof(*TableUsbMdm))
+//------------------------------------------------
 /**
   * @brief  USBH_MSC_InterfaceInit 
   *         Interface initialization for MSC class.
@@ -95,18 +116,19 @@ static USBH_Status USBH_MSC_InterfaceInit(USB_OTG_CORE_HANDLE *pdev,void *phost)
   USBH_HOST *pphost = phost;
   USBH_Status	Status = USBH_FAIL	;
   
-  if(Status != USBH_OK){
-    Status = USBH_MY_InterfaceInit(pdev,phost,CDC_CLASS1,CDC_PROTOCOL3)	;
+  if(Status != USBH_OK && DeviceUsbMdm){
+    Status = USBH_MY_InterfaceInit(pdev,phost,DeviceUsbMdm->Class,DeviceUsbMdm->Proto,DeviceUsbMdm->Intf)	;
 	if(Status == USBH_OK) MSC_Machine.isCDC = 1							;}
+	
   if(Status != USBH_OK){
-    Status = USBH_MY_InterfaceInit(pdev,phost,MSC_CLASS,MSC_PROTOCOL)	;
+    Status = USBH_MY_InterfaceInit(pdev,phost,MSC_CLASS,MSC_PROTOCOL,-1)	;
 	if(Status == USBH_OK) MSC_Machine.isCDC = 0							;}
   
   if(Status != USBH_OK){ pphost->usr_cb->DeviceNotSupported()			;}
   return USBH_OK ;
 }
 //------------------------------------------------------------------------------------
-USBH_Status	USBH_MY_InterfaceInit(USB_OTG_CORE_HANDLE *pdev,void *phost,uint8_t InterfaceClass,uint8_t InterfaceProtocol)
+USBH_Status	USBH_MY_InterfaceInit(USB_OTG_CORE_HANDLE *pdev,void *phost,uint8_t InterfaceClass,uint8_t InterfaceProtocol,short Intf)
 {
   USBH_Status	Status = USBH_FAIL			;
   USBH_HOST 	*pphost = phost				;
@@ -118,7 +140,8 @@ USBH_Status	USBH_MY_InterfaceInit(USB_OTG_CORE_HANDLE *pdev,void *phost,uint8_t 
   for(if_ix=0;if_ix<pphost->device_prop.Cfg_Desc.bNumInterfaces;if_ix++){
     Itf_Desc = &pphost->device_prop.Itf_Desc[if_ix]				;
     if(Itf_Desc->bInterfaceClass    != InterfaceClass || 
-	   Itf_Desc->bInterfaceProtocol != InterfaceProtocol) continue	;
+	   Itf_Desc->bInterfaceProtocol != InterfaceProtocol ||
+	   (Intf>=0 && Intf != if_ix)) continue	;
 	
 	ep_in = ep_out = 0				;
 	CntEp = Itf_Desc->bNumEndpoints	;
@@ -579,21 +602,27 @@ int	hexstr2bin(uint8_t* buf,char* strMsg)
  if(ix) ix = (ix>>1)	;
  return	ix				;}
 //------------------------------------------------
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-char		strMsg_HUAWEI_E171[] = "55534243123456780000000000000011062000000100000000000000000000";// MAGIC!!!!
-uint8_t		buffMsg[100]	;
-//------------------------------------------------
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 USBH_Status	MY_ModeSwitch(USB_OTG_CORE_HANDLE *pdev,void *phost)
 {
- int Len = 0,Cnt=0					;
- USBH_Status Status = USBH_OK		;
- URB_STATE	UrbState				;
- USBH_HOST *pphost = phost			;
+ int 			Len = 0,Cnt=0,ix		;
+ USBH_Status 	Status = USBH_OK		;
+ URB_STATE		UrbState				;
+ USBH_HOST 		*pphost = phost			;
  
  USBH_DevDesc_TypeDef *hs = &pphost->device_prop.Dev_Desc;
+ DeviceUsbMdm = 0	;
  
- if(hs->idVendor == 0x12D1 && hs->idProduct == 0x155B){
-   Len = hexstr2bin(buffMsg,strMsg_HUAWEI_E171)	;// MAGIC
+ for(ix=0;ix<SIZE_TBL_USB_MDM;ix++){
+   if(hs->idVendor == TableUsbMdm[ix].Vid &&
+      hs->idProduct== TableUsbMdm[ix].Pid) 
+	  DeviceUsbMdm = TableUsbMdm + ix	;
+ }
+
+ if(DeviceUsbMdm){
+   Len = hexstr2bin(buffMsg,DeviceUsbMdm->strModeSwitch)	;// MAGIC
 
    Status = USBH_BulkSendData(pdev,buffMsg,Len,MSC_Machine.hc_num_out);
  

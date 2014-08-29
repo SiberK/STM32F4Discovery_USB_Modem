@@ -222,7 +222,7 @@ void USBH_USR_UnrecoveredError (void)
 void USBH_USR_DeviceDisconnected (void)
 {/* Set default screen color*/
   Log.d((void *)MSG_DEV_DISCONNECTED);
-  if(PIDprv != 0x155B){ STM_EVAL_LEDOff(LED5)	; STM_EVAL_LEDOff(LED6)	; LEDind = LED3	;}
+  if(PIDprv != 0x155B){ STM_EVAL_LEDOff(LEDind)	;LEDind = LED3	;}
 }
 /**
 * @brief  USBH_USR_ResetUSBDevice 
@@ -279,8 +279,12 @@ void USBH_USR_Device_DescAvailable(void *DeviceDesc)
 			 hs->bcdUSB>>8,hs->bcdUSB&0xFF);
   PIDprv = hs->idProduct	;
   LEDprv = LEDind	;
-  if(PIDprv == 0x155B){ STM_EVAL_LEDOff(LED3)	; STM_EVAL_LEDOff(LED5)	; STM_EVAL_LEDOff(LED6)	; LEDind = LED5	;}
-  if(PIDprv == 0x1506){ STM_EVAL_LEDOff(LED3)	; STM_EVAL_LEDOff(LED5)	; STM_EVAL_LEDOff(LED6)	; LEDind = LED6	;}
+  switch(PIDprv){
+  case 0x155B: STM_EVAL_LEDOff(LEDind)	; LEDind = LED5	; break	;
+  case 0x1506: STM_EVAL_LEDOff(LEDind)	; LEDind = LED6	; break	;
+  case 0x2000: STM_EVAL_LEDOff(LEDind)	; LEDind = LED5	; break	;
+  case 0x2003: STM_EVAL_LEDOff(LEDind)	; LEDind = LED6	; break	;
+  }
 }
 
 /**
@@ -385,13 +389,10 @@ void USBH_USR_SerialNum_String(void *SerialNumString)
 */
 void USBH_USR_EnumerationDone(void)
 {
-  
   /* Enumeration complete */
   Log.d((void *)MSG_DEV_ENUMERATED);
-  
-  Log.d("> To see the root content of the disk : \n\r" );
-  Log.d("> Press Key... \n\r");
-  
+//  Log.d("> To see the root content of the disk : \n\r" );
+//  Log.d("> Press Key... \n\r");  
 } 
 
 
@@ -572,7 +573,7 @@ static uint8_t Explore_Disk (char* path , uint8_t recu_level)
       if(line_idx > 9)
       {
         line_idx = 0;
-        Log.d("Press Key to continue...\r\n");
+//        Log.d("Press Key to continue...\r\n");
 
         /*USER1 B3 in polling*/
         while((HCD_IsDeviceConnected(&USB_OTG_Core)) && \

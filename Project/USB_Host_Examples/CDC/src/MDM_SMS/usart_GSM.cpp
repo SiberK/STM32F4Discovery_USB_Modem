@@ -74,7 +74,7 @@ const	char	strDEL_ALL_SMS[]	= "AT+CMGD=1,4"	;
 const	char	strSEND_SMS[]		= "AT+CMGS="	;
 const	char	strCLTS[]			= "AT+CLTS=1"	;// Get Local Timestamp
 //const	char	strINIT1[]			= "AT+CMGF=1;+COPS?;+GSV;+CSQ;+CLIP=1;+CLTS=1;+CCLK?"	;// for SIM900
-const	char	strINIT1[]			= "AT^CURC=0;+CLIP=1;+CMGF=1;+COPS?;i;+CSQ"	;
+const	char	strINIT1[]			= "AT+CLIP=1;+CMGF=1;+COPS?;i;+CSQ"	;
 const	char	strINIT2[]			= "AT+CPMS=\"SM\",\"SM\",\"SM\""	;
 //const	char	strINIT2[]			= "AT+CPMS=\"me\",\"me\",\"me\""	;
 
